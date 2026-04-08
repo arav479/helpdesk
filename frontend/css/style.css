@@ -1,0 +1,120 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fb;
+    align-items: center;
+}
+
+
+.top-banner {
+    display: flex;
+    height: 120px;
+    background: linear-gradient(to right, #4facfe, #00c6ff);
+}
+
+.banner_left {
+    width: 70%;
+}
+
+.banner_right {
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+}
+
+
+.nav {
+    background: #ffffff;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.nav span {
+    margin: 0 20px;
+    color: #555;
+    font-size: 15px;
+}
+
+.nav .active {
+    font-weight: bold;
+    color: #0077cc;
+}
+
+
+.header-text {
+    padding: 20px 40px;
+    background: #eef3f8;
+}
+
+.header-text h2 {
+    margin: 0;
+    color: #222;
+}
+
+.header-text p {
+    margin-top: 5px;
+    color: #555;
+}
+
+
+.login-section {
+    display: flex;
+    height: 320px;
+}
+
+
+.login-box {
+    width: 70%;
+    background: #dbe9f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.login-box form {
+    width: 60%;
+    text-align: center;
+}
+
+
+.right-side {
+    width: 30%;
+    background: #f8fbff;
+}
+
+
+.login-box input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.login-box select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    background: #ffffff;
+    box-sizing: border-box;
+
+}
+
+
+.login-box button {
+    padding: 8px 18px;
+    background: #0077cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background: #005fa3;
+}

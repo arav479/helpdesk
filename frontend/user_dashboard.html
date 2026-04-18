@@ -1,118 +1,130 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Open New Ticket</title>
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-}
-.top {
-    background-color: #4facfe;
-    padding: 20px;
-    text-align: right;
-    font-size: 14px;
-}
-.nav {
-    background-color: #4facfe;
-    text-align: center;
-    padding: 10px;
-}
-.nav a {
-    margin: 0 20px;
-    text-decoration: none;
-    color: black;
-    font-weight: normal;
-}
-.nav a.active {
-    font-weight: bold;
-}
-.container {
-    width: 600px;
-    margin: 30px auto;
-}
-input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background-color:#4facfe;
-    border: none;
-    font-size: 14px;
-}
-textarea {
-    height: 80px;
-}
-.buttons {
-    text-align: center;
-    margin-top: 30px;
-}
 
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    background-color: #4facfe;
-    border: none;
-    cursor: pointer;
-}
-</style>
+<head>
+    <title>Open New Ticket</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .top {
+            background-color: #4facfe;
+            padding: 20px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .nav {
+            background-color: #4facfe;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .nav a {
+            margin: 0 20px;
+            text-decoration: none;
+            color: black;
+            font-weight: normal;
+        }
+
+        .nav a.active {
+            font-weight: bold;
+        }
+
+        .container {
+            width: 600px;
+            margin: 30px auto;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #4facfe;
+            border: none;
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 80px;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4facfe;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 
 </head>
 
 <body>
 
-<div class="top">
-    username | email address | log out
-</div>
-
-<div class="nav">
-    <a href="#">support centre</a>
-    <a href="#" class="active">open new ticket</a>
-    <a href="#">Tickets</a>
-</div>
-
-<div class="container">
-
-<h2>Open New Ticket</h2>
-
-<form action="/ticket_credentials" methods="POST">
-    
-    <label>Help Topic:</label>
-    <select name="helptopic">
-        <option value="AC-Problem">AC-Problem</option>
-        <option value="Academic ERP & LMS Related">Academic ERP & LMS Related</option>
-        <option value="Attendance System">Attendance System</option>
-        <option value="Network">Network</option>
-        <option value="Plumbing">Plumbing</option>
-        <option value="Wifi-LAN Internet">Wifi-LAN Internet</option>
-    </select>
-
-    <label>Ticket Details:</label>
-    <input type="text" placeholder="Enter issue summary" name="issue_summary">
-
-    <label>Detailed Explanation:</label>
-    <textarea placeholder="Type here..." name="problem_explaination"></textarea>
-
-    <label>Location:</label>
-    <input type="text" name="location">
-
-    <label>Department/Hostel and Room Number:</label>
-    <input type="text" name="Department/Hostel">
-
-    <label>Mobile Number:</label>
-    <input type="number" name="mobilenumber">
-
-    <label>Preferred Time:</label>
-    <input type="time" name="preferred_time">
-
-    <div class="buttons">
-        <button type="submit">CREATE TICKET</button>
-        <button type="reset">RESET</button>
-        <button href="login.html">CANCEL</button>
+    <div class="top">
+        username | email address | log out
     </div>
 
+    <div class="nav">
+        <a href="#">support centre</a>
+        <a href="#" class="active">open new ticket</a>
+        <a href="#">Tickets</a>
     </div>
-</form>    
+
+    <div class="container">
+
+        <h2>Open New Ticket</h2>
+
+        <form action="/ticket_credentials" method="POST">
+
+            <label>Help Topic:</label>
+            <select name="helptopic">
+                <option value="AC-Problem">AC-Problem</option>
+                <option value="Academic ERP & LMS Related">Academic ERP & LMS Related</option>
+                <option value="Attendance System">Attendance System</option>
+                <option value="Network">Network</option>
+                <option value="Plumbing">Plumbing</option>
+                <option value="Wifi-LAN Internet">Wifi-LAN Internet</option>
+            </select>
+
+            <label>Ticket Details:</label>
+            <input type="text" placeholder="Enter issue summary" name="issue_summary">
+
+            <label>Detailed Explanation:</label>
+            <textarea placeholder="Type here..." name="problem_explaination"></textarea>
+
+            <label>Location:</label>
+            <input type="text" name="location">
+
+            <label>Department/Hostel and Room Number:</label>
+            <input type="text" name="Department/Hostel">
+
+            <label>Mobile Number:</label>
+            <input type="number" name="mobilenumber">
+
+            <label>Preferred Time:</label>
+            <input type="time" name="preferred_time">
+
+            <div class="buttons">
+                <button type="submit">CREATE TICKET</button>
+                <button type="reset">RESET</button>
+                <button href="login.html">CANCEL</button>
+            </div>
+
+    </div>
+    </form>
 
 </body>
+
 </html>

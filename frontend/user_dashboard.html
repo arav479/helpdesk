@@ -1,250 +1,102 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Open New Ticket</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-        }
-
-        .top {
-            background-color: #4facfe;
-            padding: 20px;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        .nav {
-            background-color: #4facfe;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .nav a {
-            margin: 0 20px;
-            text-decoration: none;
-            color: black;
-            font-weight: normal;
-        }
-
-        .nav a.active {
-            font-weight: bold;
-        }
-
-        .container {
-            width: 600px;
-            margin: 30px auto;
-        }
-
-        input,
-        textarea,
-        select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #4facfe;
-            border: none;
-            font-size: 14px;
-        }
-
-        textarea {
-            height: 80px;
-        }
-
-        .buttons {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #4facfe;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open New Ticket | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box"></div>
+            SSN Helpdesk
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <a href="#" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link active">Open New Ticket</a>
+                <a href="#" class="nav-link">My Tickets</a>
+                <a href="#" class="nav-link">Knowledge base</a>
+                <a href="#" class="nav-link">Support</a>
+            </ul>
+        </nav>
+    </aside>
 
-<body>
-
-    <div class="top">
-        username | email address | log out
-    </div>
-
-    <div class="nav">
-        <a href="#">support centre</a>
-        <a href="#" class="active">open new ticket</a>
-        <a href="#">Tickets</a>
-    </div>
-
-    <div class="container">
-
-        <h2>Open New Ticket</h2>
-
-        <form action="/ticket_credentials" method="POST">
-
-            <label>Help Topic:</label>
-            <select name="helptopic">
-                <option value="AC-Problem">AC-Problem</option>
-                <option value="Academic ERP & LMS Related">Academic ERP & LMS Related</option>
-                <option value="Attendance System">Attendance System</option>
-                <option value="Network">Network</option>
-                <option value="Plumbing">Plumbing</option>
-                <option value="Wifi-LAN Internet">Wifi-LAN Internet</option>
-            </select>
-
-            <label>Ticket Details:</label>
-            <input type="text" placeholder="Enter issue summary" name="issue_summary">
-
-            <label>Detailed Explanation:</label>
-            <textarea placeholder="Type here..." name="problem_explaination"></textarea>
-
-            <label>Location:</label>
-            <input type="text" name="location">
-
-            <label>Department/Hostel and Room Number:</label>
-            <input type="text" name="Department/Hostel">
-
-            <label>Mobile Number:</label>
-            <input type="number" name="mobilenumber">
-
-            <label>Preferred Time:</label>
-            <input type="time" name="preferred_time">
-
-            <div class="buttons">
-                <button type="submit">CREATE TICKET</button>
-                <button type="reset">RESET</button>
-                <button href="login.html">CANCEL</button>
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Open New Ticket</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">Tell us what's wrong, and we'll help you fix it.</p>
             </div>
+            <div class="admin-profile">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">Student User</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Campus Resident</div>
+                </div>
+                <div class="avatar">SU</div>
+            </div>
+        </header>
 
-    </div>
-    </form>
+        <div class="form-card">
+            <form action="/ticket_credentials" method="POST">
+                <div class="form-group">
+                    <label for="helptopic">Help Topic</label>
+                    <select name="helptopic" id="helptopic" required>
+                        <option value="" disabled selected>Select a topic</option>
+                        <option value="AC-Problem">AC-Problem</option>
+                        <option value="Academic ERP & LMS Related">Academic ERP & LMS Related</option>
+                        <option value="Attendance System">Attendance System</option>
+                        <option value="Network">Network</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Wifi-LAN Internet">Wifi-LAN Internet</option>
+                    </select>
+                </div>
 
+                <div class="form-group">
+                    <label for="issue_summary">Ticket Details</label>
+                    <input type="text" id="issue_summary" placeholder="Briefly summarize the problem" name="issue_summary" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="problem_explaination">Detailed Explanation</label>
+                    <textarea id="problem_explaination" placeholder="Provide more details to help our team understand the issue" name="problem_explaination" required></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" placeholder="e.g. Block 1, Room 101" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Department/Hostel">Department / Hostel</label>
+                        <input type="text" id="Department/Hostel" name="Department/Hostel" placeholder="e.g. IT Dept / Hostel A" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="mobilenumber">Mobile Number</label>
+                        <input type="tel" id="mobilenumber" name="mobilenumber" placeholder="Your contact number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="preferred_time">Preferred Time</label>
+                        <input type="time" id="preferred_time" name="preferred_time" required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">CREATE TICKET</button>
+                    <button type="reset" class="btn-outline">RESET FORM</button>
+                    <a href="/" class="btn-outline" style="text-decoration: none; text-align: center; display: inline-block;">CANCEL</a>
+                </div>
+            </form>
+        </div>
+    </main>
 </body>
-
-=======
-<!DOCTYPE html>
-<html>
-<head>
-<title>Open New Ticket</title>
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-}
-.top {
-    background-color: #4facfe;
-    padding: 20px;
-    text-align: right;
-    font-size: 14px;
-}
-.nav {
-    background-color: #4facfe;
-    text-align: center;
-    padding: 10px;
-}
-.nav a {
-    margin: 0 20px;
-    text-decoration: none;
-    color: black;
-    font-weight: normal;
-}
-.nav a.active {
-    font-weight: bold;
-}
-.container {
-    width: 600px;
-    margin: 30px auto;
-}
-input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background-color:#4facfe;
-    border: none;
-    font-size: 14px;
-}
-textarea {
-    height: 80px;
-}
-.buttons {
-    text-align: center;
-    margin-top: 30px;
-}
-
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    background-color: #4facfe;
-    border: none;
-    cursor: pointer;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="top">
-    username | email address | log out
-</div>
-
-<div class="nav">
-    <a href="#">support centre</a>
-    <a href="#" class="active">open new ticket</a>
-    <a href="#">Tickets</a>
-</div>
-
-<div class="container">
-
-<h2>Open New Ticket</h2>
-
-<form action="/ticket_credentials" methods="POST">
-    
-    <label>Help Topic:</label>
-    <select name="helptopic">
-        <option value="AC-Problem">AC-Problem</option>
-        <option value="Academic ERP & LMS Related">Academic ERP & LMS Related</option>
-        <option value="Attendance System">Attendance System</option>
-        <option value="Network">Network</option>
-        <option value="Plumbing">Plumbing</option>
-        <option value="Wifi-LAN Internet">Wifi-LAN Internet</option>
-    </select>
-
-    <label>Ticket Details:</label>
-    <input type="text" placeholder="Enter issue summary" name="issue_summary">
-
-    <label>Detailed Explanation:</label>
-    <textarea placeholder="Type here..." name="problem_explaination"></textarea>
-
-    <label>Location:</label>
-    <input type="text" name="location">
-
-    <label>Department/Hostel and Room Number:</label>
-    <input type="text" name="Department/Hostel">
-
-    <label>Mobile Number:</label>
-    <input type="number" name="mobilenumber">
-
-    <label>Preferred Time:</label>
-    <input type="time" name="preferred_time">
-
-    <div class="buttons">
-        <button type="submit">CREATE TICKET</button>
-        <button type="reset">RESET</button>
-        <button href="login.html">CANCEL</button>
-    </div>
-
-    </div>
-</form>    
-
-</body>
->>>>>>> 01abd88acfb3e69120a35dc32580a7190aa35a7c
 </html>

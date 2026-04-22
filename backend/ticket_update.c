@@ -1,11 +1,12 @@
-<<<<<<< HEAD
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
+int ticket_count=1;
 struct ticket_details
+
  {
+    char ticket_id[100];
     char helptopic[100];
     char issue_summary[100];
     char problem_explaination[500];
@@ -16,6 +17,39 @@ struct ticket_details
     struct ticket_details *next;
 
 };
+
+char *create_ticket_id(char *helptopic,char *ticket_id){
+
+    char count=0;
+    char prefix[20];
+    if (strcmp(helptopic, "AC-Problem") == 0) {
+        strcpy(prefix, "AC-");
+    }
+    else if (strcmp(helptopic, "Electrical") == 0) {
+        strcpy(prefix, "EL-");
+    }
+    else if (strcmp(helptopic, "Network") == 0) {
+        strcpy(prefix, "NW-");
+    }
+    else if (strcmp(helptopic, "Plumbing") == 0) {
+        strcpy(prefix, "PL-");
+    }
+    else if (strcmp(helptopic, "Hardware") == 0) {
+        strcpy(prefix, "HW-");
+    }
+    else if (strcmp(helptopic, "Security") == 0) {
+        strcpy(prefix, "SEC-");
+    }
+    else {
+        strcpy(prefix, "OT-");
+    }
+
+    ticket_count++;
+    sprintf(ticket_id, "%s%03d", prefix, ticket_count);
+    return ticket_id;
+}
+
+
 void display_tickets(struct ticket_details *head)
  {
     if (head == NULL) {
@@ -28,6 +62,7 @@ void display_tickets(struct ticket_details *head)
     while (temp != NULL) {
 
         printf("----- Ticket -----\n");
+        printf("Ticket_id    : %s\n", temp->ticket_id);
         printf("Help Topic       : %s\n", temp->helptopic);
         printf("Issue Summary    : %s\n", temp->issue_summary);
         printf("Problem Explain  : %s\n", temp->problem_explaination);
@@ -43,73 +78,47 @@ void display_tickets(struct ticket_details *head)
 
 struct ticket_details* extract_file_data_to_nodes() 
 {
-    struct ticket_details *ticket_node;
-    struct ticket_details *list_ptr;
-    struct ticket_details  *temp;
-    FILE *fp;
-    fp = fopen("ticket_credentials.txt", "r");
+    FILE *fp = fopen("ticket_credentials.txt", "r");
     if (fp == NULL) {
         fprintf(stderr, "Error opening ticket_credentials.txt\n");
         return NULL;
     }
-    int i=0,count=1;
-    char text[100];
-    ticket_node = (struct ticket_details *)malloc(sizeof(struct ticket_details));
-    list_ptr=ticket_node;
-    temp=ticket_node;
-    ticket_node->next=NULL;
 
-    char ch;
-    while ((ch = fgetc(fp)) != EOF) {
+    struct ticket_details *head = NULL, *tail = NULL;
+    char line[1024];
 
-        if (ch!='|'  && ch!='\n') {
-            if (i<99) {
-                text[i++]=ch;
-            }
+    while (fgets(line, sizeof(line), fp)) {
+        if (strlen(line) <= 1) continue;
 
-        }
-        if (ch=='|'||ch=='\n') {
-            text[i]='\0';
-            i=0;
-            count++;
+        struct ticket_details *new_node = (struct ticket_details *)malloc(sizeof(struct ticket_details));
+        if (new_node == NULL) break;
+        new_node->next = NULL;
+
+        char *token = strtok(line, "|\n");
+        if (token) {
+            strcpy(new_node->helptopic, token);
+            create_ticket_id(new_node->helptopic, new_node->ticket_id);
+            
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->issue_summary, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->problem_explaination, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->location, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->Department_Hostel, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->mobilelenumber, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->preferred_time, token);
         }
 
-        if (count == 1) {
-            strcpy(ticket_node->helptopic,text);
-        }
-        else if (count == 2) {
-            strcpy(ticket_node->issue_summary,text);
-        }
-        else if (count == 3) {
-            strcpy(ticket_node->problem_explaination,text);
-        }
-        else if (count == 4) {
-            strcpy(ticket_node->location,text);
-        }
-        else if (count == 5) {
-            strcpy(ticket_node->Department_Hostel,text);
-        }
-        else if (count == 6) {
-            strcpy(ticket_node->mobilelenumber,text);
-        }
-        else if (count == 7) {
-            strcpy(ticket_node->preferred_time,text);
-        }
-        else {
-            text[i++]=ch;
-        }
-        if (ch=='\n') {
-            count=1;
-            ticket_node=(struct ticket_details *)malloc(sizeof(struct ticket_details));
-            temp->next=ticket_node;
-            ticket_node->next=NULL;
-            temp=temp->next;
+        if (head == NULL) {
+            head = new_node;
+            tail = new_node;
+        } else {
+            tail->next = new_node;
+            tail = new_node;
         }
     }
+
     fclose(fp);
-    return list_ptr;
-    }
-
+    return head;
+}
 
 int main (int argc, char *argv[]) 
 {
@@ -122,53 +131,10 @@ int main (int argc, char *argv[])
     if (fp == NULL) {
         fprintf(stderr, "Error opening ticket_credentials.txt\n");
     }
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s", argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s\n", argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
     fclose(fp);
     struct ticket_details *top = extract_file_data_to_nodes();
     display_tickets(top);
-    return 0;
 
 
-
-=======
-#include<stdio.h>
-#include<sqlite3.h>
-#include<string.h>
-
-int main(int argc,char *argv[]) {
-    sqlite3 *db;
-    char *err_msg;
-    char *helptopic=argv[1];
-    char *issue_summary=argv[2];
-    char *problem_explaination=argv[3];
-    char *location=argv[4];
-    char *Department_Hostel=argv[5];
-    char *mobilelenumber=argv[6];
-    char *preferred_time =argv[7];
-    int rc;
-    rc = sqlite3_open("users.db", &db);
-    if (rc != SQLITE_OK) {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-    }
-    char *create_sql="CREATE TABLE IF NOT EXISTS("
-    "HELPTOPIC TEXT,"
-    "ISSUE_SUMMARY TEXT,"
-    "PROBLEM_EXPLAINNATION TEXT,"
-    "LOCATION TEXT,"
-    "DEPARTMENT/HOSTEL TEXT,"
-    "MOBILENUMBER TEXT,"
-    "PREFERRED_TIME TEXT"
-    ");";
-
-    rc=sqlite3_exec(db,create_sql,0,0,&err_msg);
-
-    if (rc != SQLITE_OK) {
-        fprintf(stderr, "SQL error: %s\n", err_msg);
-        sqlite3_free(err_msg);
-    }
-
-    
-
-    
->>>>>>> 01abd88acfb3e69120a35dc32580a7190aa35a7c
 }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,64 +42,13 @@
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                 </select>
-                <button type="submit">SIGN IN</button>
+                <button type="submit" name="signin" value="signin">SIGN IN</button>
+                <p>If already have a account </p>
+                <button type="submit" name="login" value="login">LOGIN</button>
             </form>
         </div>
     </div>
 
 </body>
 
-=======
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>SSN Helpdesk</title>
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-</head>
-
-<body>
-    <header>
-        <div class="top-banner">
-            <div class="banner_left">
-                <h2>SSN Helpdesk</h2>
-            </div>
-            <div class="banner_right">
-                <div> username</div>
-                <div>login</div>
-            </div>
-        </div>
-
-    </header>
-
-    <div class="nav">
-        <span>support centre</span>
-        <span>open new ticket</span>
-        <span class="active">Ticket</span>
-    </div>
-
-    <div class="header-text">
-        <h2>Sign in to SSN-SNU Chennai Helpdesk</h2>
-    </div>
-
-    <div class="login-section">
-        <div class="login-box">
-            <form action="/create" method="POST">
-                <input type="text" placeholder="Email / username" name="email" required>
-                <input type="password" placeholder="Password" name="password" required>
-                <select name="role">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <button type="submit">SIGN IN</button>
-            </form>
-        </div>
-    </div>
-
-</body>
-
->>>>>>> 01abd88acfb3e69120a35dc32580a7190aa35a7c
 </html>

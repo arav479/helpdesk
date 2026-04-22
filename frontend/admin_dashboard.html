@@ -1,12 +1,133 @@
-<<<<<<< HEAD
-<html>
-    <body>
-        <h1>admin dashboard</h1>
-    </body>
-=======
-<html>
-    <body>
-        <h1>admin dashboard</h1>
-    </body>
->>>>>>> 01abd88acfb3e69120a35dc32580a7190aa35a7c
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box"></div>
+            SSN Helpdesk
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Active Tickets</a>
+                <a href="#" class="nav-link">Resolved Tips</a>
+                <a href="#" class="nav-link">User Management</a>
+                <a href="#" class="nav-link">Settings</a>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Admin Command Centre</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">Monitor and resolve campus issues</p>
+            </div>
+            <div class="admin-profile">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">Admin User</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Campus Supervisor</div>
+                </div>
+                <div class="avatar">AU</div>
+            </div>
+        </header>
+
+        <!-- Stats Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Tickets</div>
+                <div class="value">128</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Pending Action</div>
+                <div class="value" style="color: #f97316;">14</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Resolved Today</div>
+                <div class="value" style="color: var(--accent);">32</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Response Rating</div>
+                <div class="value">4.8/5</div>
+            </div>
+        </div>
+
+        <!-- Tickets Table Section -->
+        <div class="tickets-container">
+            <div class="table-header">
+                <h2>Incoming Tickets</h2>
+                <button class="btn-primary">Export Report</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Help Topic</th>
+                        <th>Issue Summary</th>
+                        <th>Location</th>
+                        <th>Dept/Hostel</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Mock Data for Frontend Preview -->
+                    <tr>
+                        <td><span class="badge badge-id">AC-001</span></td>
+                        <td class="topic-cell">AC Problem</td>
+                        <td>
+                            <div class="summary-text">Water leaking from unit in Block-3</div>
+                        </td>
+                        <td>Block-3, Room 204</td>
+                        <td>CSE Dept</td>
+                        <td><span class="badge badge-pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">EL-042</span></td>
+                        <td class="topic-cell">Electrical</td>
+                        <td>
+                            <div class="summary-text">Power socket not working in lab</div>
+                        </td>
+                        <td>Main Lab</td>
+                        <td>IT Dept</td>
+                        <td><span class="badge badge-active">In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">NW-089</span></td>
+                        <td class="topic-cell">Network</td>
+                        <td>
+                            <div class="summary-text">Cannot connect to hostel WiFi</div>
+                        </td>
+                        <td>Hostel-A</td>
+                        <td>Girls Hostel</td>
+                        <td><span class="badge badge-pending">New</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">PL-015</span></td>
+                        <td class="topic-cell">Plumbing</td>
+                        <td>
+                            <div class="summary-text">Tap leakage in cafeteria</div>
+                        </td>
+                        <td>Ground Floor</td>
+                        <td>Cafeteria</td>
+                        <td><span class="badge badge-active">Fixed</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+
 </html>

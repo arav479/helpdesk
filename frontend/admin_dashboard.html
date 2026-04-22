@@ -49,19 +49,19 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="label">Total Tickets</div>
-                <div class="value">128</div>
+                <div class="value">{{ tickets|length }}</div>
             </div>
             <div class="stat-card">
                 <div class="label">Pending Action</div>
-                <div class="value" style="color: #f97316;">14</div>
+                <div class="value" style="color: #f97316;">{{ tickets|length }}</div>
             </div>
             <div class="stat-card">
                 <div class="label">Resolved Today</div>
-                <div class="value" style="color: var(--accent);">32</div>
+                <div class="value" style="color: var(--accent);">0</div>
             </div>
             <div class="stat-card">
                 <div class="label">Response Rating</div>
-                <div class="value">4.8/5</div>
+                <div class="value">N/A</div>
             </div>
         </div>
 
@@ -79,51 +79,35 @@
                         <th>Issue Summary</th>
                         <th>Location</th>
                         <th>Dept/Hostel</th>
-                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Mock Data for Frontend Preview -->
+                    {% if tickets %}
+                    {% for ticket in tickets %}
                     <tr>
-                        <td><span class="badge badge-id">AC-001</span></td>
-                        <td class="topic-cell">AC Problem</td>
+                        <td><span class="badge badge-id">{{ ticket.id }}</span></td>
+                        <td class="topic-cell">{{ ticket.topic }}</td>
                         <td>
-                            <div class="summary-text">Water leaking from unit in Block-3</div>
+                            <div class="summary-text">{{ ticket.summary }}</div>
                         </td>
-                        <td>Block-3, Room 204</td>
-                        <td>CSE Dept</td>
-                        <td><span class="badge badge-pending">Pending</span></td>
+                        <td>{{ ticket.location }}</td>
+                        <td>{{ ticket.dept }}</td>
+                        <td>
+                            <button>Assign Engineer</button>
+                            <form action="/delete" method="POST" style="display:inline;">
+                                <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                <button type="submit">Delete ticket</button>
+                            </form>
+                        </td>
                     </tr>
+                    {% endfor %}
+                    {% else %}
                     <tr>
-                        <td><span class="badge badge-id">EL-042</span></td>
-                        <td class="topic-cell">Electrical</td>
-                        <td>
-                            <div class="summary-text">Power socket not working in lab</div>
-                        </td>
-                        <td>Main Lab</td>
-                        <td>IT Dept</td>
-                        <td><span class="badge badge-active">In Progress</span></td>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">No tickets
+                            available.</td>
                     </tr>
-                    <tr>
-                        <td><span class="badge badge-id">NW-089</span></td>
-                        <td class="topic-cell">Network</td>
-                        <td>
-                            <div class="summary-text">Cannot connect to hostel WiFi</div>
-                        </td>
-                        <td>Hostel-A</td>
-                        <td>Girls Hostel</td>
-                        <td><span class="badge badge-pending">New</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge badge-id">PL-015</span></td>
-                        <td class="topic-cell">Plumbing</td>
-                        <td>
-                            <div class="summary-text">Tap leakage in cafeteria</div>
-                        </td>
-                        <td>Ground Floor</td>
-                        <td>Cafeteria</td>
-                        <td><span class="badge badge-active">Fixed</span></td>
-                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>

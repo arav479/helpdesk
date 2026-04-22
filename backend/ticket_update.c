@@ -4,7 +4,6 @@
 #include <ctype.h>
 int ticket_count=1;
 struct ticket_details
-
  {
     char ticket_id[100];
     char helptopic[100];
@@ -18,21 +17,85 @@ struct ticket_details
 
 };
 
-char *create_ticket_id(char *helptopic,char *ticket_id){
+struct ticket_details *find_ticket_id_node(struct ticket_details **head,char *ticket_id) {
+    struct ticket_details *temp = *head;
+    while (temp != NULL) {
+        if (strcmp(temp->ticket_id, ticket_id) == 0) {
+            return temp;
+        }
+    }
+}
+void delete_ticket_node_by_id(struct ticket_details **head, char *ticket_id) {
+    struct ticket_details *temp = *head;
+    struct ticket_details *prev = NULL;
 
-    char count=0;
+    if (temp == NULL) {
+        printf("No tickets to delete.\n");
+        return;
+    }
+
+    // If head node itself holds the ticket_id to be deleted
+    if (temp != NULL && strcmp(temp->ticket_id, ticket_id) == 0) {
+        *head = temp->next; // Changed head
+        free(temp);         // free old head
+        printf("Ticket %s deleted successfully.\n", ticket_id);
+        return;
+    }
+
+    // Search for the ticket_id to be deleted, keep track of the
+    // previous node as we need to change 'prev->next'
+    while (temp != NULL && strcmp(temp->ticket_id, ticket_id) != 0) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    // If ticket_id was not present in linked list
+    if (temp == NULL) {
+        printf("Ticket %s not found.\n", ticket_id);
+        return;
+    }
+    prev->next=temp->next;
+    free(temp);
+    printf("Ticket %s deleted successfully.\n", ticket_id);
+}
+
+void save_nodes_to_file(struct ticket_details *head) {
+    FILE *fp = fopen("ticket_credentials.txt", "w");
+    if (fp == NULL) {
+        fprintf(stderr, "Error opening ticket_credentials.txt for writing\n");
+        return;
+    }
+
+    struct ticket_details *temp = head;
+    while (temp != NULL) {
+        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s\n",
+            temp->ticket_id,temp->helptopic, temp->issue_summary,
+                temp->problem_explaination, temp->location, 
+                temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
+        temp = temp->next;
+    }
+    fclose(fp);
+}
+
+char *create_ticket_id(char *helptopic, char *ticket_id) {
     char prefix[20];
+    
     if (strcmp(helptopic, "AC-Problem") == 0) {
         strcpy(prefix, "AC-");
     }
     else if (strcmp(helptopic, "Electrical") == 0) {
         strcpy(prefix, "EL-");
     }
-    else if (strcmp(helptopic, "Network") == 0) {
+
+    else if (strcmp(helptopic, "Network") == 0 || strcmp(helptopic, "Wifi-LAN Internet") == 0) {
         strcpy(prefix, "NW-");
     }
     else if (strcmp(helptopic, "Plumbing") == 0) {
         strcpy(prefix, "PL-");
+    }
+
+    else if (strcmp(helptopic, "Attendance System") == 0) {
+        strcpy(prefix, "AT-");
     }
     else if (strcmp(helptopic, "Hardware") == 0) {
         strcpy(prefix, "HW-");
@@ -48,6 +111,7 @@ char *create_ticket_id(char *helptopic,char *ticket_id){
     sprintf(ticket_id, "%s%03d", prefix, ticket_count);
     return ticket_id;
 }
+
 
 
 void display_tickets(struct ticket_details *head)
@@ -96,9 +160,8 @@ struct ticket_details* extract_file_data_to_nodes()
 
         char *token = strtok(line, "|\n");
         if (token) {
-            strcpy(new_node->helptopic, token);
-            create_ticket_id(new_node->helptopic, new_node->ticket_id);
-            
+            strcpy(new_node->ticket_id, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->helptopic, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->issue_summary, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->problem_explaination, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->location, token);
@@ -120,21 +183,47 @@ struct ticket_details* extract_file_data_to_nodes()
     return head;
 }
 
+void list_tickets_parsable(struct ticket_details *head)
+{
+    struct ticket_details *temp = head;
+    while (temp != NULL) {
+        printf("%s|%s|%s|%s|%s|%s|%s|%s\n", 
+               temp->ticket_id, temp->helptopic, temp->issue_summary, 
+               temp->problem_explaination, temp->location, 
+               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
+        temp = temp->next;
+    }
+}
+
 int main (int argc, char *argv[]) 
 {
+    if (argc == 2 && strcmp(argv[1], "list") == 0) {
+            struct ticket_details *top = extract_file_data_to_nodes();
+            list_tickets_parsable(top);
+            return 0;
+        } 
+    if (argc == 3 && strcmp(argv[1], "delete") == 0 ) {
+            struct ticket_details *top = extract_file_data_to_nodes();
+            delete_ticket_node_by_id(&top, argv[2]);
+            save_nodes_to_file(top);
+            return 0;
+        }
+
     if (argc < 8) {
         fprintf(stderr, "Usage: %s <helptopic> <issue_summary> <problem_explaination> <location> <Department_Hostel> <mobilelenumber> <preferred_time>\n", argv[0]);
         return 1;
     }
     FILE *fp;
     fp = fopen("ticket_credentials.txt", "a");
-    if (fp == NULL) {
+    if (fp == NULL){
         fprintf(stderr, "Error opening ticket_credentials.txt\n");
+        return 1;
     }
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s\n", argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+    char ticket_id[20];
+    create_ticket_id(argv[1], ticket_id);
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s\n",ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
     fclose(fp);
     struct ticket_details *top = extract_file_data_to_nodes();
     display_tickets(top);
-
-
+    return 0;
 }

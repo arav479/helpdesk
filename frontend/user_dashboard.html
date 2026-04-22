@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
+
 <body class="dashboard-body">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -32,7 +34,8 @@
         <header class="header">
             <div>
                 <h1>Open New Ticket</h1>
-                <p style="color: var(--text-muted); margin-top: 4px;">Tell us what's wrong, and we'll help you fix it.</p>
+                <p style="color: var(--text-muted); margin-top: 4px;">Tell us what's wrong, and we'll help you fix it.
+                </p>
             </div>
             <div class="admin-profile">
                 <div style="text-align: right;">
@@ -60,12 +63,15 @@
 
                 <div class="form-group">
                     <label for="issue_summary">Ticket Details</label>
-                    <input type="text" id="issue_summary" placeholder="Briefly summarize the problem" name="issue_summary" required>
+                    <input type="text" id="issue_summary" placeholder="Briefly summarize the problem"
+                        name="issue_summary" required>
                 </div>
 
                 <div class="form-group">
                     <label for="problem_explaination">Detailed Explanation</label>
-                    <textarea id="problem_explaination" placeholder="Provide more details to help our team understand the issue" name="problem_explaination" required></textarea>
+                    <textarea id="problem_explaination"
+                        placeholder="Provide more details to help our team understand the issue"
+                        name="problem_explaination" required></textarea>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -75,14 +81,16 @@
                     </div>
                     <div class="form-group">
                         <label for="Department/Hostel">Department / Hostel</label>
-                        <input type="text" id="Department/Hostel" name="Department/Hostel" placeholder="e.g. IT Dept / Hostel A" required>
+                        <input type="text" id="Department/Hostel" name="Department/Hostel"
+                            placeholder="e.g. IT Dept / Hostel A" required>
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div class="form-group">
                         <label for="mobilenumber">Mobile Number</label>
-                        <input type="tel" id="mobilenumber" name="mobilenumber" placeholder="Your contact number" required>
+                        <input type="tel" id="mobilenumber" name="mobilenumber" placeholder="Your contact number"
+                            required>
                     </div>
                     <div class="form-group">
                         <label for="preferred_time">Preferred Time</label>
@@ -93,10 +101,48 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">CREATE TICKET</button>
                     <button type="reset" class="btn-outline">RESET FORM</button>
-                    <a href="/" class="btn-outline" style="text-decoration: none; text-align: center; display: inline-block;">CANCEL</a>
+                    <a href="/" class="btn-outline"
+                        style="text-decoration: none; text-align: center; display: inline-block;">CANCEL</a>
                 </div>
             </form>
         </div>
+        <div class="tickets-container" style="margin-top: 2rem;">
+            <div class="table-header">
+                <h2>My Recent Tickets</h2>
+            </div>
+            {% if tickets %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Topic</th>
+                        <th>Summary</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td><span class="badge badge-id">{{ ticket.id }}</span></td>
+                        <td class="topic-cell">{{ ticket.topic }}</td>
+                        <td>
+                            <div class="summary-text">{{ ticket.summary }}</div>
+                        </td>
+                        <td>{{ ticket.location }}</td>
+                        <td><span class="badge badge-pending">{{ ticket.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div
+                style="padding: 2rem; text-align: center; color: var(--text-muted); background: white; border-radius: 1rem; border: 1px solid var(--border-color);">
+                No tickets found.
+            </div>
+            {% endif %}
+        </div>
     </main>
 </body>
+
 </html>

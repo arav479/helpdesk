@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-int ticket_count=1;
+//this is the structure of the ticket
+#define TABLE_SIZE 50
 struct ticket_details
  {
+    char username[150];
     char ticket_id[100];
     char helptopic[100];
     char issue_summary[100];
@@ -16,7 +18,30 @@ struct ticket_details
     struct ticket_details *next;
 
 };
+//structure to group tickets by user
+struct usernode{
+    char username[100];
+    struct ticket_details *tickets_head;
+    struct usernode *next;
+};
+int get_ticket_count() {
+    int count = 100;
+    FILE *fp = fopen("count.txt", "r");
+    if (fp != NULL) {
+        fscanf(fp, "%d", &count);
+        fclose(fp);
+    }
+    return count;
+}
 
+void save_ticket_count(int count) {
+    FILE *fp = fopen("count.txt", "w");
+    if (fp != NULL) {
+        fprintf(fp, "%d", count);
+        fclose(fp);
+    }
+}
+//LINKED LIST START
 struct ticket_details *find_ticket_id_node(struct ticket_details **head,char *ticket_id) {
     struct ticket_details *temp = *head;
     while (temp != NULL) {
@@ -36,8 +61,8 @@ void delete_ticket_node_by_id(struct ticket_details **head, char *ticket_id) {
 
     // If head node itself holds the ticket_id to be deleted
     if (temp != NULL && strcmp(temp->ticket_id, ticket_id) == 0) {
-        *head = temp->next; // Changed head
-        free(temp);         // free old head
+        *head = temp->next;
+        free(temp);
         printf("Ticket %s deleted successfully.\n", ticket_id);
         return;
     }
@@ -68,9 +93,10 @@ void save_nodes_to_file(struct ticket_details *head) {
 
     struct ticket_details *temp = head;
     while (temp != NULL) {
-        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s\n",
+        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+            temp->username,
             temp->ticket_id,temp->helptopic, temp->issue_summary,
-                temp->problem_explaination, temp->location, 
+                temp->problem_explaination, temp->location,
                 temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
         temp = temp->next;
     }
@@ -79,7 +105,10 @@ void save_nodes_to_file(struct ticket_details *head) {
 
 char *create_ticket_id(char *helptopic, char *ticket_id) {
     char prefix[20];
-    
+
+    // Assign prefix based on help topic to create unique ticket id
+    //The count is incremented for each ticket even for all the helptopics
+    //there is no unique incrementation for differenet helptopic
     if (strcmp(helptopic, "AC-Problem") == 0) {
         strcpy(prefix, "AC-");
     }
@@ -107,8 +136,10 @@ char *create_ticket_id(char *helptopic, char *ticket_id) {
         strcpy(prefix, "OT-");
     }
 
-    ticket_count++;
-    sprintf(ticket_id, "%s%03d", prefix, ticket_count);
+    int count = get_ticket_count();
+    count++;
+    sprintf(ticket_id, "%s%03d", prefix, count);
+    save_ticket_count(count);
     return ticket_id;
 }
 
@@ -126,6 +157,7 @@ void display_tickets(struct ticket_details *head)
     while (temp != NULL) {
 
         printf("----- Ticket -----\n");
+        printf("User name       :%s\n",temp->username);
         printf("Ticket_id    : %s\n", temp->ticket_id);
         printf("Help Topic       : %s\n", temp->helptopic);
         printf("Issue Summary    : %s\n", temp->issue_summary);
@@ -140,7 +172,8 @@ void display_tickets(struct ticket_details *head)
     }
 }
 
-struct ticket_details* extract_file_data_to_nodes() 
+struct ticket_details* extract_file_data_to_nodes()
+//The data of each ticket is stored in file from the main function to make  the operations converting them to linkedlist
 {
     FILE *fp = fopen("ticket_credentials.txt", "r");
     if (fp == NULL) {
@@ -160,7 +193,9 @@ struct ticket_details* extract_file_data_to_nodes()
 
         char *token = strtok(line, "|\n");
         if (token) {
-            strcpy(new_node->ticket_id, token);
+            strcpy(new_node->username, token);
+            //creating the nodes with these members
+            if((token = strtok(NULL, "|\n"))) strcpy(new_node->ticket_id, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->helptopic, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->issue_summary, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->problem_explaination, token);
@@ -185,32 +220,101 @@ struct ticket_details* extract_file_data_to_nodes()
 
 void list_tickets_parsable(struct ticket_details *head)
 {
+    //since we need to send the data to python in a parsable format we used
+    //this function this will send to fetchticketsfunction in python
     struct ticket_details *temp = head;
     while (temp != NULL) {
-        printf("%s|%s|%s|%s|%s|%s|%s|%s\n", 
-               temp->ticket_id, temp->helptopic, temp->issue_summary, 
-               temp->problem_explaination, temp->location, 
+        printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
+               temp->ticket_id, temp->helptopic, temp->issue_summary,
+               temp->problem_explaination, temp->location,
                temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
         temp = temp->next;
     }
 }
+//LINKED LIST END
 
-int main (int argc, char *argv[]) 
+//HASHTABLE START
+struct usernode *hash_table[TABLE_SIZE]={NULL};
+
+// Simple Hash Function (DJB2) 
+unsigned int hash_function(char *username) {
+    unsigned int hash = 5381;
+    int c;
+    while ((c = *username++))
+        hash = ((hash << 5) + hash) + c; 
+    return hash % TABLE_SIZE;
+}
+// Function to insert a ticket into the Hash Table
+void insert_into_hash_table(struct ticket_details *ticket) {
+    unsigned int index = hash_function(ticket->username);
+    
+    // Check if user already exists in this bucket
+    struct usernode *curr_user = hash_table[index];
+    while (curr_user != NULL) {
+        if (strcmp(curr_user->username, ticket->username) == 0) {
+            // User found, add ticket to their list
+            ticket->next = curr_user->tickets_head;
+            curr_user->tickets_head = ticket;
+            return;
+        }
+        curr_user = curr_user->next;
+    }
+    // User not found, create a new UserNode
+    struct usernode *new_user = (struct usernode *)malloc(sizeof(struct usernode));
+    strcpy(new_user->username, ticket->username);
+    new_user->tickets_head = ticket;
+    ticket->next = NULL; // This is the first ticket for this new user node
+    
+    // Add usernode to the hash table bucket (chaining)
+    new_user->next = hash_table[index];
+    hash_table[index] = new_user;
+}
+
+// Function to display tickets for a specific user
+void display_user_tickets(char *username) {
+    unsigned int index = hash_function(username);
+    struct usernode *curr_user = hash_table[index];
+    
+    while (curr_user != NULL) {
+        if (strcmp(curr_user->username, username) == 0) {
+            list_tickets_parsable(curr_user->tickets_head);
+            return;
+        }
+        curr_user = curr_user->next;
+    }
+}
+//HASHTABLE END
+int main (int argc, char *argv[])
 {
     if (argc == 2 && strcmp(argv[1], "list") == 0) {
+        //fetch ticket
             struct ticket_details *top = extract_file_data_to_nodes();
             list_tickets_parsable(top);
             return 0;
-        } 
+        }
     if (argc == 3 && strcmp(argv[1], "delete") == 0 ) {
+        //delete ticket
             struct ticket_details *top = extract_file_data_to_nodes();
             delete_ticket_node_by_id(&top, argv[2]);
             save_nodes_to_file(top);
             return 0;
         }
+    if (argc == 3 && strcmp(argv[1], "viewmytickets") == 0 ) {
+        //load the tickets of the specific user
+        struct ticket_details *top = extract_file_data_to_nodes();
+        // Use hash table to display tickets for a specific user
+        struct ticket_details *temp = top;
+        while (temp != NULL) {
+            struct ticket_details *next_node = temp->next;
+            insert_into_hash_table(temp);
+            temp = next_node;
+        }   
+        display_user_tickets(argv[2]);  
+    return 0;        
+    }
 
-    if (argc < 8) {
-        fprintf(stderr, "Usage: %s <helptopic> <issue_summary> <problem_explaination> <location> <Department_Hostel> <mobilelenumber> <preferred_time>\n", argv[0]);
+    if (argc < 9) {
+        fprintf(stderr, "Usage: %s<username> <ticket_id> <helptopic> <issue_summary> <problem_explaination> <location> <Department_Hostel> <mobilelenumber> <preferred_time>\n", argv[0]);
         return 1;
     }
     FILE *fp;
@@ -219,11 +323,9 @@ int main (int argc, char *argv[])
         fprintf(stderr, "Error opening ticket_credentials.txt\n");
         return 1;
     }
-    char ticket_id[20];
+    char ticket_id[100];
     create_ticket_id(argv[1], ticket_id);
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s\n",ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n",argv[8],ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
     fclose(fp);
-    struct ticket_details *top = extract_file_data_to_nodes();
-    display_tickets(top);
-    return 0;
+    
 }

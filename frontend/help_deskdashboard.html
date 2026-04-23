@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Center | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --nav-bg: #ffffff;
+            --banner-bg: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Navigation Styling */
+        .navbar {
+            background: var(--nav-bg);
+            padding: 0 2rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar a:hover {
+            color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        /* Hero Banner Section */
+        .hero-banner {
+            background: var(--banner-bg);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-banner h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .hero-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Main Layout Grid */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2.5rem;
+        }
+
+        /* Content Styling */
+        .main-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+        }
+
+        .main-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .main-content h3 {
+            font-size: 1.3rem;
+            margin: 2rem 0 1rem;
+            color: var(--primary);
+        }
+
+        .main-content p {
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .main-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .main-content li {
+            padding: 1rem 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .main-content li::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar .btn {
+            width: 100%;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn.blue {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn.green {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .sidebar .btn:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .resources {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .resources h4 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .resources a {
+            display: block;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 0;
+            transition: 0.2s;
+        }
+
+        .resources a:hover {
+            text-decoration: underline;
+        }
+
+        .link-card {
+            background: #eef2ff;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px dashed var(--primary);
+            margin-top: 1rem;
+        }
+
+        .link-card a {
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navbar -->
+    <div class="navbar">
+        <a href="/support">🏠 Support Center Home</a>
+        <a href="/dashboard">📄 Open a New Ticket</a>
+        <a href="/viewmytickets">📊 Check Ticket Status</a>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <h1>SSN-SNUChennai</h1>
+        <p>Your one-stop destination for technical assistance and campus services.</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Left Content -->
+        <div class="main-content">
+            <h2>Welcome to Helpdesk</h2>
+
+            <p>
+                Please use this portal to log an incident for any issues you face or observe.
+                Our dedicated support team covers <strong>AC Systems, Internet / Wi-Fi, Electrical, Plumbing, Attendance
+                    Systems,</strong> and more.
+            </p>
+
+            <div class="link-card">
+                <strong>Main Portal:</strong><br>
+                <a href="https://helpdesk.ssn.edu.in">https://helpdesk.ssn.edu.in</a>
+                <p style="margin: 8px 0 0; font-size: 0.85rem;">Login using Digital ID Credentials (same as Active
+                    Directory/LMS/ERP)</p>
+            </div>
+
+            <div class="link-card" style="background: #fff7ed; border-color: #f97316;">
+                <strong style="color: #9a3412;">Password Recovery:</strong><br>
+                <a href="https://passwordreset.microsoftonline.com/"
+                    style="color: #c2410c;">https://passwordreset.microsoftonline.com/</a>
+            </div>
+
+            <h3>Steps for Incident Logging</h3>
+
+            <ul>
+                <li>Click the "Open New Ticket" button</li>
+                <li>Sign in using your Digital ID credentials</li>
+                <li>Select the appropriate Help Topic</li>
+                <li>Fill in all the mandatory fields</li>
+                <li>Click "Create Ticket" to submit</li>
+            </ul>
+
+            <p
+                style="margin-top: 2rem; padding: 1.5rem; background: #f1f5f9; border-radius: 12px; border-left: 4px solid var(--primary);">
+                <strong>Checking Status:</strong> To check the <b>status/updates</b> to your tickets,
+                simply sign in and navigate to the "My Tickets" section in your dashboard.
+            </p>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar">
+            <a href="/dashboard" class="btn blue">
+                <span>📄</span> Open a New Ticket
+            </a>
+            <a href="/viewmytickets" class="btn green">
+                <span>📊</span> Check Ticket Status
+            </a>
+
+            <div class="resources">
+                <h4>Other Resources</h4>
+                <a href="#">Knowledge Base</a>
+                <a href="#">Service Status</a>
+                <a href="#">Contact IT Support</a>
+                <a href="#">Useful Links</a>
+            </div>
+
+            <div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.8rem;">
+                © 2024 SSN Institutions<br>All Rights Reserved
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,13 +1,49 @@
-from flask import Flask,request,render_template
+from flask import Flask,request,render_template,session
 import subprocess
 import os
 
+
 app = Flask(__name__,template_folder='../frontend',static_folder="../frontend")
+app.secret_key = 'some_very_secret_key'
 
 @app.route('/')
 def home():
     return render_template("login.html")
 
+def fetch_user_tickets():
+    tickets = []
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
+    try:
+        email = session.get('email')
+        if not email:
+            return []
+        result=subprocess.run(
+            [exe_path, 'viewmytickets', email],
+            capture_output=True,
+            text=True,
+            )
+        tickets = []
+        if result.returncode == 0:
+            lines = result.stdout.strip().split("\n")
+            for line in lines:
+                parts = line.split("|")
+                if len(parts) >= 8:
+                    tickets.append({
+                        "username": parts[0],
+                        "id": parts[1],
+                        "topic": parts[2],
+                        "summary": parts[3],
+                        "explanation": parts[4],
+                        "location": parts[5],
+                        "dept": parts[6],
+                        "mobile": parts[7],
+                        "time": parts[8]
+                    })
+        
+    except Exception as e:
+        print(f"Error fetching user tickets: {e}")
+    
+    return tickets
 
 def fetch_tickets():
     tickets = []
@@ -22,35 +58,35 @@ def fetch_tickets():
                 parts = line.split("|")
                 if len(parts) >= 8:
                     tickets.append({
-                        "id": parts[0],
-                        "topic": parts[1],
-                        "summary": parts[2],
-                        "explanation": parts[3],
-                        "location": parts[4],
-                        "dept": parts[5],
-                        "mobile": parts[6],
-                        "time": parts[7],
-                        "status": "Pending"
+                        "username": parts[0],
+                        "id": parts[1],
+                        "topic": parts[2],
+                        "summary": parts[3],
+                        "explanation": parts[4],
+                        "location": parts[5],
+                        "dept": parts[6],
+                        "mobile": parts[7],
+                        "time": parts
                     })
         else:
-            # Fallback to direct file reading
-            filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_credentials.txt")
-            if os.path.exists(filepath):
-                with open(filepath, "r") as f:
-                    for line in f:
-                        parts = line.strip().split("|")
-                        if len(parts) >= 7:
-                            tickets.append({
-                                "id": f"TK-{len(tickets)+1:03d}",
-                                "topic": parts[0],
-                                "summary": parts[1],
-                                "explanation": parts[2],
-                                "location": parts[3],
-                                "dept": parts[4],
-                                "mobile": parts[5],
-                                "time": parts[6],
-                                "status": "Pending"
-                            })
+            f=open("ticket_credentials.txt",'r')
+            line = f.readline()
+            while line:
+                parts = line.split("|")
+                if len(parts) >= 8:
+                    tickets.append({
+                        "username": parts[0],
+                        "id": parts[1],
+                        "topic": parts[2],
+                        "summary": parts[3],
+                        "explanation": parts[4],
+                        "location": parts[5],
+                        "dept": parts[6],
+                        "mobile": parts[7],
+                        "time": parts
+                    })
+                line = f.readline()
+            f.close()
     except Exception as e:
         print(f"Error fetching tickets: {e}")
     
@@ -64,6 +100,7 @@ def dashboard():
 @app.route('/create', methods=['POST'])
 def create():
     email = request.form['email']#from the form to python and these are send as input in terminal of c program
+    session['email'] = email
     password = request.form['password']
     role = request.form.get('role')
     
@@ -108,11 +145,14 @@ def ticket_credentials():
     Department_Hostel = request.form['Department/Hostel']
     mobilenumber = request.form['mobilenumber']
     preferred_time = request.form['preferred_time']
+    email = session.get('email')
+    if not email:
+        return loginfailiure,401
 
     exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
 
     result=subprocess.run(
-        [exe_path,helptopic,issue_summary,problem_explaination,location,Department_Hostel,mobilenumber,preferred_time],
+        [exe_path,helptopic,issue_summary,problem_explaination,location,Department_Hostel,mobilenumber,preferred_time,email],
         capture_output=True,
         text=True)
     if result:
@@ -130,5 +170,10 @@ def delete_ticket():
     print("Deleted:",ticket_id)
     tickets=fetch_tickets()
     return render_template("admin_dashboard.html",tickets=tickets)
+
+@app.route('/viewmytickets', methods=['GET', 'POST'])
+def view_my_tickets():
+    tickets=fetch_user_tickets()
+    return render_template("mytickets.html",tickets=tickets)
 if __name__ == "__main__":
     app.run(debug=True)

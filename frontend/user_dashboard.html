@@ -22,13 +22,13 @@
             <ul class="nav-links">
                 <a href="#" class="nav-link">Dashboard</a>
                 <a href="#" class="nav-link active">Open New Ticket</a>
-                <a href="#" class="nav-link">My Tickets</a>
+                <a href="/viewmytickets" class="nav-link">My Tickets</a>
                 <a href="#" class="nav-link">Knowledge base</a>
-                <a href="#" class="nav-link">Support</a>
+                <a href="#support.html" class="nav-link">Support</a>
             </ul>
         </nav>
     </aside>
-
+    /
     <!-- Main Content -->
     <main class="main-content">
         <header class="header">
@@ -105,42 +105,6 @@
                         style="text-decoration: none; text-align: center; display: inline-block;">CANCEL</a>
                 </div>
             </form>
-        </div>
-        <div class="tickets-container" style="margin-top: 2rem;">
-            <div class="table-header">
-                <h2>My Recent Tickets</h2>
-            </div>
-            {% if tickets %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ticket ID</th>
-                        <th>Topic</th>
-                        <th>Summary</th>
-                        <th>Location</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ticket in tickets %}
-                    <tr>
-                        <td><span class="badge badge-id">{{ ticket.id }}</span></td>
-                        <td class="topic-cell">{{ ticket.topic }}</td>
-                        <td>
-                            <div class="summary-text">{{ ticket.summary }}</div>
-                        </td>
-                        <td>{{ ticket.location }}</td>
-                        <td><span class="badge badge-pending">{{ ticket.status }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div
-                style="padding: 2rem; text-align: center; color: var(--text-muted); background: white; border-radius: 1rem; border: 1px solid var(--border-color);">
-                No tickets found.
-            </div>
-            {% endif %}
         </div>
     </main>
 </body>

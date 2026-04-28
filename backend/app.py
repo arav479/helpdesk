@@ -125,16 +125,16 @@ def create():
         )
         output = result.stdout.strip()
         if output == "SUCCESS:admin": 
-            return render_template("admin_dashboard.html", tickets=fetch_tickets())
+            return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
         elif output == "SUCCESS:user":
-            return render_template("user_dashboard.html", tickets=fetch_tickets())
+            return render_template("user_dashboard.html",Email=email)
         else:
             return "<h1>Login Failed: Invalid Email or Password</h1><a href='/'>Try again</a>"
     
     if role == 'admin':
-        return render_template("admin_dashboard.html", tickets=fetch_tickets())
+        return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
     else:
-        return render_template("user_dashboard.html", tickets=fetch_tickets())
+        return render_template("user_dashboard.html", tickets=fetch_tickets(),Email=email)
 
 @app.route('/ticket_credentials', methods=['POST']) 
 def ticket_credentials():
@@ -169,7 +169,7 @@ def delete_ticket():
         )
     print("Deleted:",ticket_id)
     tickets=fetch_tickets()
-    return render_template("admin_dashboard.html",tickets=tickets)
+    return render_template("admin_dashboard.html",tickets=tickets,email=session['email'])
 
 @app.route('/viewmytickets', methods=['GET', 'POST'])
 def view_my_tickets():

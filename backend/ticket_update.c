@@ -15,6 +15,7 @@ struct ticket_details
     char Department_Hostel[100];
     char mobilelenumber[100];
     char preferred_time[100];
+    char assigned_engineer[100];
     struct ticket_details *next;
 
 };
@@ -283,6 +284,104 @@ void display_user_tickets(char *username) {
         curr_user = curr_user->next;
     }
 }
+
+// --- QUEUE STRUCTURES ---
+struct Engineer {
+    char name[100];
+    char department[100];
+    struct Engineer *next;
+};
+
+struct Queue {
+    struct Engineer *front;
+    struct Engineer *rear;
+};
+
+void initQueue(struct Queue *q) {
+    q->front = NULL;
+    q->rear = NULL;
+}
+
+void enqueue(struct Queue *q, char *name, char *department) {
+    struct Engineer *new_eng = (struct Engineer *)malloc(sizeof(struct Engineer));
+    strcpy(new_eng->name, name);
+    strcpy(new_eng->department, department);
+    new_eng->next = NULL;
+    if (q->rear == NULL) {
+        q->front = q->rear = new_eng;
+        return;
+    }
+    q->rear->next = new_eng;
+    q->rear = new_eng;
+}
+
+struct Engineer* dequeue(struct Queue *q) {
+    if (q->front == NULL) return NULL;
+    struct Engineer *temp = q->front;
+    q->front = q->front->next;
+    if (q->front == NULL) q->rear = NULL;
+    return temp;
+}
+
+// --- SMART ASSIGNMENT LOGIC ---
+void assign_engineer(char *helptopic, char *assigned_name) {
+    FILE *fp = fopen("engineers.txt", "r");
+    if (fp == NULL) {
+        strcpy(assigned_name, "Unassigned");
+        return;
+    }
+
+    struct Queue dept_queue;
+    initQueue(&dept_queue);
+    struct Queue other_queue;
+    initQueue(&other_queue);
+
+    char line[200];
+    // 1. Read file, map departments, build queues
+    while (fgets(line, sizeof(line), fp)) {
+        if (strlen(line) <= 1) continue;
+        line[strcspn(line, "\r\n")] = 0; // Remove newline
+        
+        char *dept = strtok(line, "|");
+        char *name = strtok(NULL, "");
+        
+        if (dept && name) {
+            if (strcmp(dept, helptopic) == 0) {
+                enqueue(&dept_queue, name, dept);
+            } else {
+                enqueue(&other_queue, name, dept);
+            }
+        }
+    }
+    fclose(fp);
+
+    // 2. Round-Robin Assignment
+    if (dept_queue.front != NULL) {
+        struct Engineer *assigned_eng = dequeue(&dept_queue);
+        strcpy(assigned_name, assigned_eng->name);
+        // Move engineer to the back of the queue
+        enqueue(&dept_queue, assigned_eng->name, assigned_eng->department);
+        free(assigned_eng);
+    } else {
+        strcpy(assigned_name, "Unassigned");
+    }
+
+    // 3. Save the rotated queues back to the file
+    fp = fopen("engineers.txt", "w");
+    if (fp != NULL) {
+        struct Engineer *temp;
+        while ((temp = dequeue(&dept_queue)) != NULL) {
+            fprintf(fp, "%s|%s\n", temp->department, temp->name);
+            free(temp);
+        }
+        while ((temp = dequeue(&other_queue)) != NULL) {
+            fprintf(fp, "%s|%s\n", temp->department, temp->name);
+            free(temp);
+        }
+        fclose(fp);
+    }
+}
+
 //HASHTABLE END
 int main (int argc, char *argv[])
 {
@@ -323,9 +422,18 @@ int main (int argc, char *argv[])
         fprintf(stderr, "Error opening ticket_credentials.txt\n");
         return 1;
     }
+    // (Inside main(), right after you create the ticket_id)
     char ticket_id[100];
     create_ticket_id(argv[1], ticket_id);
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n",argv[8],ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+
+    // --- NEW LOGIC: Assign the Engineer ---
+    char assigned_engineer_name[100];
+    assign_engineer(argv[1], assigned_engineer_name); 
+
+    // --- UPDATED LOGIC: Write 10 variables instead of 9 ---
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", 
+            argv[8], ticket_id, argv[1], argv[2], argv[3], 
+            argv[4], argv[5], argv[6], argv[7], assigned_engineer_name);
     fclose(fp);
     
 }

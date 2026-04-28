@@ -80,6 +80,9 @@
                         <th>Location</th>
                         <th>Dept/Hostel</th>
                         <th>Actions</th>
+                        <th>Department</th>
+                        <th>Assigned Engineer</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -93,6 +96,9 @@
                         </td>
                         <td>{{ ticket.location }}</td>
                         <td>{{ ticket.dept }}</td>
+                        
+                        <td><strong>{{ ticket.engineer }}</strong></td>
+                        
                         <td>
                             <button>Assign Engineer</button>
                             <form action="/delete" method="POST" style="display:inline;">

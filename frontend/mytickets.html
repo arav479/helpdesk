@@ -56,6 +56,9 @@
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Summary</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Location</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Time</th>
+                            <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Time</th>
+
+                            <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Assigned Engineer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,6 +71,9 @@
                             </td>
                             <td style="padding: 1.25rem 1.5rem; color: var(--text-muted);">{{ ticket.location }}</td>
                             <td style="padding: 1.25rem 1.5rem;"><span style="color: #64748b; font-size: 0.9rem;">{{ ticket.time }}</span></td>
+                            <td style="padding: 1.25rem 1.5rem;"><span style="color: #64748b; font-size: 0.9rem;">{{ ticket.time }}</span></td>
+
+                            <td style="padding: 1.25rem 1.5rem; font-weight: 500; color: #0f172a;">{{ ticket.engineer }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

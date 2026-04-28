@@ -27,7 +27,7 @@ def fetch_user_tickets():
             lines = result.stdout.strip().split("\n")
             for line in lines:
                 parts = line.split("|")
-                if len(parts) >= 8:
+                if len(parts) >= 9:
                     tickets.append({
                         "username": parts[0],
                         "id": parts[1],
@@ -37,7 +37,8 @@ def fetch_user_tickets():
                         "location": parts[5],
                         "dept": parts[6],
                         "mobile": parts[7],
-                        "time": parts[8]
+                        "time": parts[8],
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned"
                     })
         
     except Exception as e:
@@ -56,7 +57,7 @@ def fetch_tickets():
             lines = result.stdout.strip().split("\n")
             for line in lines:
                 parts = line.split("|")
-                if len(parts) >= 8:
+                if len(parts) >= 9:
                     tickets.append({
                         "username": parts[0],
                         "id": parts[1],
@@ -66,14 +67,15 @@ def fetch_tickets():
                         "location": parts[5],
                         "dept": parts[6],
                         "mobile": parts[7],
-                        "time": parts
+                        "time": parts[8],
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned"
                     })
         else:
             f=open("ticket_credentials.txt",'r')
             line = f.readline()
             while line:
                 parts = line.split("|")
-                if len(parts) >= 8:
+                if len(parts) >= 9:
                     tickets.append({
                         "username": parts[0],
                         "id": parts[1],
@@ -83,7 +85,8 @@ def fetch_tickets():
                         "location": parts[5],
                         "dept": parts[6],
                         "mobile": parts[7],
-                        "time": parts
+                        "time": parts[8],
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned"
                     })
                 line = f.readline()
             f.close()

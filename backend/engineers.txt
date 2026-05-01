@@ -1,6 +1,65 @@
+AC-Problem|Anita
+AC-Problem|Vikram
+AC-Problem|Latha
 AC-Problem|Ravi
 AC-Problem|Suresh
+Attendance System|Shreya
+Attendance System|Anand
+Attendance System|Preeti
+Attendance System|Rohit
+Attendance System|Vijay
+Plumbing|Rita
+Plumbing|Nithin
+Plumbing|Geetha
+Plumbing|Arun
+Plumbing|Sam
 Electrical|John
 Electrical|Doe
+Electrical|Priya
+Electrical|Manish
+Electrical|Sanjay
 Network|Alice
 Network|Bob
+Network|Rahul
+Network|Deepak
+Network|Kavita
+Wi-Fi-LAN Internet|Kiran
+Wi-Fi-LAN Internet|Maya
+Wi-Fi-LAN Internet|Siddharth
+Wi-Fi-LAN Internet|Neha
+Wi-Fi-LAN Internet|Amit
+IT Equipment|Sanjana
+IT Equipment|Kumar
+IT Equipment|Divya
+IT Equipment|Ramesh
+IT Equipment|Sonia
+Printer / Scanner|Vikas
+Printer / Scanner|Lakshmi
+Printer / Scanner|Harish
+Printer / Scanner|Meena
+Printer / Scanner|Gautam
+Projector / AV|Suraj
+Projector / AV|Nisha
+Projector / AV|Om
+Projector / AV|Pooja
+Projector / AV|Ramesh
+Password Reset|Rashmi
+Password Reset|Gopi
+Password Reset|Alok
+Password Reset|Jaya
+Password Reset|Dinesh
+Access / ID Cards|Varun
+Access / ID Cards|Anita
+Access / ID Cards|Kriti
+Access / ID Cards|Raghav
+Access / ID Cards|Sneha
+Other|Mohan
+Other|Tara
+Other|Arvind
+Other|Bala
+Other|Shyam
+Academic ERP & LMS Related|Rahul
+Academic ERP & LMS Related|Manisha
+Academic ERP & LMS Related|Vikram
+Academic ERP & LMS Related|Deepa
+Academic ERP & LMS Related|Kiran

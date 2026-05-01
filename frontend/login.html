@@ -15,16 +15,13 @@
             <div class="banner_left">
                 <h2>SSN Helpdesk</h2>
             </div>
-            <div class="banner_right">
-                <div> username</div>
-                <div>login</div>
-            </div>
+
         </div>
 
     </header>
 
     <div class="nav">
-        <span>support centre</span>
+        <a href="/support" class="nav-link"><span>support centre</span></a>
         <span>open new ticket</span>
         <span class="active">Ticket</span>
     </div>
@@ -35,6 +32,16 @@
 
     <div class="login-section">
         <div class="login-box">
+            {% if error %}
+            <div style="background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 10px; margin-bottom: 15px; border-radius: 5px; text-align: center; font-family: sans-serif;">
+                {{ error }}
+            </div>
+            {% endif %}
+            {% if success %}
+            <div style="background-color: #f0fdf4; color: #22c55e; border: 1px solid #bbf7d0; padding: 10px; margin-bottom: 15px; border-radius: 5px; text-align: center; font-family: sans-serif;">
+                {{ success }}
+            </div>
+            {% endif %}
             <form action="/create" method="POST">
                 <input type="email" placeholder="Email / username" name="email" required>
                 <input type="password" placeholder="Password" name="password" required>

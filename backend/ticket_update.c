@@ -17,7 +17,6 @@ struct ticket_details
     char preferred_time[100];
     char assigned_engineer[100];
     struct ticket_details *next;
-
 };
 //structure to group tickets by user
 struct usernode{
@@ -219,16 +218,22 @@ struct ticket_details* extract_file_data_to_nodes()
     return head;
 }
 
+char *assign_engineer(char * str, char * text);
+
 void list_tickets_parsable(struct ticket_details *head)
 {
     //since we need to send the data to python in a parsable format we used
     //this function this will send to fetchticketsfunction in python
     struct ticket_details *temp = head;
     while (temp != NULL) {
-        printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
+        char assigned_engineer_name[100];
+
+        strcpy(temp->assigned_engineer, assign_engineer(temp->helptopic, assigned_engineer_name));
+
+        printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
                temp->ticket_id, temp->helptopic, temp->issue_summary,
                temp->problem_explaination, temp->location,
-               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
+               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time,temp->assigned_engineer);
         temp = temp->next;
     }
 }
@@ -237,18 +242,18 @@ void list_tickets_parsable(struct ticket_details *head)
 //HASHTABLE START
 struct usernode *hash_table[TABLE_SIZE]={NULL};
 
-// Simple Hash Function (DJB2) 
+// Simple Hash Function (DJB2)
 unsigned int hash_function(char *username) {
     unsigned int hash = 5381;
     int c;
     while ((c = *username++))
-        hash = ((hash << 5) + hash) + c; 
+        hash = ((hash << 5) + hash) + c;
     return hash % TABLE_SIZE;
 }
 // Function to insert a ticket into the Hash Table
 void insert_into_hash_table(struct ticket_details *ticket) {
     unsigned int index = hash_function(ticket->username);
-    
+
     // Check if user already exists in this bucket
     struct usernode *curr_user = hash_table[index];
     while (curr_user != NULL) {
@@ -265,7 +270,7 @@ void insert_into_hash_table(struct ticket_details *ticket) {
     strcpy(new_user->username, ticket->username);
     new_user->tickets_head = ticket;
     ticket->next = NULL; // This is the first ticket for this new user node
-    
+
     // Add usernode to the hash table bucket (chaining)
     new_user->next = hash_table[index];
     hash_table[index] = new_user;
@@ -275,7 +280,7 @@ void insert_into_hash_table(struct ticket_details *ticket) {
 void display_user_tickets(char *username) {
     unsigned int index = hash_function(username);
     struct usernode *curr_user = hash_table[index];
-    
+
     while (curr_user != NULL) {
         if (strcmp(curr_user->username, username) == 0) {
             list_tickets_parsable(curr_user->tickets_head);
@@ -284,6 +289,7 @@ void display_user_tickets(char *username) {
         curr_user = curr_user->next;
     }
 }
+//HASHTABLE END
 
 // --- QUEUE STRUCTURES ---
 struct Engineer {
@@ -324,11 +330,11 @@ struct Engineer* dequeue(struct Queue *q) {
 }
 
 // --- SMART ASSIGNMENT LOGIC ---
-void assign_engineer(char *helptopic, char *assigned_name) {
+char *assign_engineer(char *helptopic, char *assigned_name) {
     FILE *fp = fopen("engineers.txt", "r");
     if (fp == NULL) {
         strcpy(assigned_name, "Unassigned");
-        return;
+        return assigned_name;
     }
 
     struct Queue dept_queue;
@@ -341,10 +347,10 @@ void assign_engineer(char *helptopic, char *assigned_name) {
     while (fgets(line, sizeof(line), fp)) {
         if (strlen(line) <= 1) continue;
         line[strcspn(line, "\r\n")] = 0; // Remove newline
-        
+
         char *dept = strtok(line, "|");
         char *name = strtok(NULL, "");
-        
+
         if (dept && name) {
             if (strcmp(dept, helptopic) == 0) {
                 enqueue(&dept_queue, name, dept);
@@ -380,9 +386,9 @@ void assign_engineer(char *helptopic, char *assigned_name) {
         }
         fclose(fp);
     }
+    return assigned_name;
 }
 
-//HASHTABLE END
 int main (int argc, char *argv[])
 {
     if (argc == 2 && strcmp(argv[1], "list") == 0) {
@@ -407,9 +413,9 @@ int main (int argc, char *argv[])
             struct ticket_details *next_node = temp->next;
             insert_into_hash_table(temp);
             temp = next_node;
-        }   
-        display_user_tickets(argv[2]);  
-    return 0;        
+        }
+        display_user_tickets(argv[2]);
+    return 0;
     }
 
     if (argc < 9) {
@@ -422,18 +428,8 @@ int main (int argc, char *argv[])
         fprintf(stderr, "Error opening ticket_credentials.txt\n");
         return 1;
     }
-    // (Inside main(), right after you create the ticket_id)
     char ticket_id[100];
     create_ticket_id(argv[1], ticket_id);
-
-    // --- NEW LOGIC: Assign the Engineer ---
-    char assigned_engineer_name[100];
-    assign_engineer(argv[1], assigned_engineer_name); 
-
-    // --- UPDATED LOGIC: Write 10 variables instead of 9 ---
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", 
-            argv[8], ticket_id, argv[1], argv[2], argv[3], 
-            argv[4], argv[5], argv[6], argv[7], assigned_engineer_name);
-    fclose(fp);
-    
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n", argv[8], ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+    fclose(fp);   
 }

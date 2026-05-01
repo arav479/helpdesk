@@ -25,6 +25,7 @@
                 <a href="#" class="nav-link">Resolved Tips</a>
                 <a href="#" class="nav-link">User Management</a>
                 <a href="#" class="nav-link">Settings</a>
+                <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
             </ul>
         </nav>
     </aside>
@@ -78,11 +79,10 @@
                         <th>Help Topic</th>
                         <th>Issue Summary</th>
                         <th>Location</th>
-                        <th>Dept/Hostel</th>
-                        <th>Actions</th>
                         <th>Department</th>
                         <th>Assigned Engineer</th>
                         <th>Actions</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -96,15 +96,15 @@
                         </td>
                         <td>{{ ticket.location }}</td>
                         <td>{{ ticket.dept }}</td>
-                        
+
                         <td><strong>{{ ticket.engineer }}</strong></td>
-                        
+
                         <td>
-                            <button>Assign Engineer</button>
                             <form action="/delete" method="POST" style="display:inline;">
                                 <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
-                                <button type="submit">Delete ticket</button>
+                                <button type="submit" class="btn-primary">Close Ticket</button>
                             </form>
+
                         </td>
                     </tr>
                     {% endfor %}

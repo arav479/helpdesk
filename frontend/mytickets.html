@@ -24,7 +24,8 @@
                 <a href="/dashboard" class="nav-link">Open New Ticket</a>
                 <a href="/viewmytickets" class="nav-link active">My Tickets</a>
                 <a href="#" class="nav-link">Knowledge base</a>
-                <a href="#" class="nav-link">Support</a>
+                <a href="/support" class="nav-link">Support</a>
+                <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
             </ul>
         </nav>
     </aside>
@@ -38,7 +39,7 @@
             </div>
             <div class="admin-profile">
                 <div style="text-align: right;">
-                    <div style="font-weight: 600;">{{email}}</div>
+                    <div style="font-weight: 600;">{{Email}}</div>
                     <div style="font-size: 0.8rem; color: var(--text-muted);">Campus Resident</div>
                 </div>
                 <div class="avatar">SU</div>
@@ -55,7 +56,6 @@
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Topic</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Summary</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Location</th>
-                            <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Time</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Time</th>
 
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Assigned Engineer</th>
@@ -70,7 +70,6 @@
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">{{ ticket.summary }}</div>
                             </td>
                             <td style="padding: 1.25rem 1.5rem; color: var(--text-muted);">{{ ticket.location }}</td>
-                            <td style="padding: 1.25rem 1.5rem;"><span style="color: #64748b; font-size: 0.9rem;">{{ ticket.time }}</span></td>
                             <td style="padding: 1.25rem 1.5rem;"><span style="color: #64748b; font-size: 0.9rem;">{{ ticket.time }}</span></td>
 
                             <td style="padding: 1.25rem 1.5rem; font-weight: 500; color: #0f172a;">{{ ticket.engineer }}</td>

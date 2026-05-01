@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Centre | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box"></div>
+            SSN Helpdesk
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/dashboard" class="nav-link">Open New Ticket</a>
+                <a href="/viewmytickets" class="nav-link">My Tickets</a>
+                <a href="#" class="nav-link">Knowledge Base</a>
+                <a href="/support" class="nav-link active">Support</a>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Support Centre</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">Learn how to raise a ticket and get help from our team.</p>
+            </div>
+            <div class="admin-profile">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{email}}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Campus Resident</div>
+                </div>
+                <div class="avatar">SU</div>
+            </div>
+        </header>
+
+        <!-- How to Raise a Ticket -->
+        <div class="tickets-container" style="margin-bottom: 1.5rem;">
+            <div class="table-header">
+                <h3 style="font-size: 1rem; font-weight: 700;">🎫 How to Raise a Support Ticket</h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Follow these 5 steps to submit your issue</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Step</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-id">1</span></td>
+                        <td class="topic-cell">Go to Dashboard</td>
+                        <td class="summary-text" style="max-width: 500px; white-space: normal;">Click <strong>"Open New Ticket"</strong> from the sidebar on the left.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">2</span></td>
+                        <td class="topic-cell">Select a Help Topic</td>
+                        <td class="summary-text" style="max-width: 500px; white-space: normal;">Choose the category that matches your issue — e.g. Wi-Fi, AC Problem, Plumbing, Attendance.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">3</span></td>
+                        <td class="topic-cell">Fill in Ticket Details</td>
+                        <td class="summary-text" style="max-width: 500px; white-space: normal;">Enter a brief summary, detailed explanation, your location, department, and mobile number.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">4</span></td>
+                        <td class="topic-cell">Submit the Ticket</td>
+                        <td class="summary-text" style="max-width: 500px; white-space: normal;">Click <strong>"Create Ticket"</strong>. You will receive a confirmation with a unique Ticket ID.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-id">5</span></td>
+                        <td class="topic-cell">Track Your Ticket</td>
+                        <td class="summary-text" style="max-width: 500px; white-space: normal;">Go to <strong>"My Tickets"</strong> from the sidebar to see status updates and assigned engineer details.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Available Help Topics -->
+        <div class="tickets-container" style="margin-bottom: 1.5rem;">
+            <div class="table-header">
+                <h3 style="font-size: 1rem; font-weight: 700;">🗂️ Available Help Topics</h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Select the most relevant topic when submitting</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Topic</th>
+                        <th>Topic</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>❄️ AC Systems</td>
+                        <td>📶 Wi-Fi / Internet</td>
+                        <td>⚡ Electrical</td>
+                    </tr>
+                    <tr>
+                        <td>🚿 Plumbing</td>
+                        <td>📋 Attendance System</td>
+                        <td>💻 IT Equipment</td>
+                    </tr>
+                    <tr>
+                        <td>🖨️ Printer / Scanner</td>
+                        <td>📡 Projector / AV</td>
+                        <td>📚 ERP / LMS</td>
+                    </tr>
+                    <tr>
+                        <td>🔐 Password Reset</td>
+                        <td>🔑 Access / ID Cards</td>
+                        <td>❓ Other / General</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+            <a href="/dashboard" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                📄 Open a New Ticket
+            </a>
+            <a href="/viewmytickets" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                📊 Check Ticket Status
+            </a>
+        </div>
+
+    </main>
+
+</body>
+
+</html>

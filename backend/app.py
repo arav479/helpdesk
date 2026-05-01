@@ -1,4 +1,4 @@
-from flask import Flask,request,render_template,session
+from flask import Flask, request, render_template, session, redirect, url_for
 import subprocess
 import os
 
@@ -117,8 +117,12 @@ def create():
             [exe_path, 'register', email, password, role],
             capture_output=True,
             text=True,
-            
         )
+        output = result.stdout.strip()
+        if "SUCCESS" in output:
+            return render_template("login.html", success="Registration successful! Please login.")
+        else:
+            return render_template("login.html", error="Registration failed. Email might already exist.")
        
     elif 'login' in request.form:
         result = subprocess.run(
@@ -132,7 +136,7 @@ def create():
         elif output == "SUCCESS:user":
             return render_template("user_dashboard.html",Email=email)
         else:
-            return "<h1>Login Failed: Invalid Email or Password</h1><a href='/'>Try again</a>"
+            return render_template("login.html", error="Invalid Email or Password")
     
     if role == 'admin':
         return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
@@ -150,7 +154,7 @@ def ticket_credentials():
     preferred_time = request.form['preferred_time']
     email = session.get('email')
     if not email:
-        return loginfailiure,401
+        return "Login failure", 401
 
     exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
 
@@ -172,11 +176,19 @@ def delete_ticket():
         )
     print("Deleted:",ticket_id)
     tickets=fetch_tickets()
-    return render_template("admin_dashboard.html",tickets=tickets,email=session['email'])
+    return render_template("admin_dashboard.html", tickets=tickets, Email=session['email'])
 
 @app.route('/viewmytickets', methods=['GET', 'POST'])
 def view_my_tickets():
     tickets=fetch_user_tickets()
-    return render_template("mytickets.html",tickets=tickets)
+    return render_template("mytickets.html", tickets=tickets, Email=session.get('email'))
+@app.route('/support')
+def support_page():
+    return render_template('support.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    return redirect(url_for('home'))
 if __name__ == "__main__":
     app.run(debug=True)

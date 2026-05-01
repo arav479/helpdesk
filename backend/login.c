@@ -25,6 +25,22 @@ int main(int argc, char *argv[])
         char *password = argv[3];
         char *role = argv[4];
 
+        FILE *check_file = fopen("userdetails.txt", "r");
+        if (check_file != NULL)
+        {
+            char fileEmail[MAX_LENGTH], filePassword[MAX_LENGTH], fileRole[MAX_LENGTH];
+            while (fscanf(check_file, "%s %s %s", fileEmail, filePassword, fileRole) != EOF)
+            {
+                if (strcmp(email, fileEmail) == 0)
+                {
+                    fclose(check_file);
+                    printf("FAILURE: Email already exists.\n");
+                    return 1;
+                }
+            }
+            fclose(check_file);
+        }
+
         FILE *file = fopen("userdetails.txt", "a");
         if (file == NULL)
         {

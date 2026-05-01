@@ -24,6 +24,24 @@ struct usernode{
     struct ticket_details *tickets_head;
     struct usernode *next;
 };
+
+// --- QUEUE STRUCTURES ---
+struct Engineer {
+    char name[100];
+    char department[100];
+    struct Engineer *next;
+};
+
+struct Queue {
+    struct Engineer *front;
+    struct Engineer *rear;
+};
+
+// Forward declarations for queue functions
+void initQueue(struct Queue *q);
+void enqueue(struct Queue *q, char *name, char *department);
+struct Engineer* dequeue(struct Queue *q);
+
 int get_ticket_count() {
     int count = 100;
     FILE *fp = fopen("count.txt", "r");
@@ -48,7 +66,9 @@ struct ticket_details *find_ticket_id_node(struct ticket_details **head,char *ti
         if (strcmp(temp->ticket_id, ticket_id) == 0) {
             return temp;
         }
+        temp = temp->next;
     }
+    return NULL;
 }
 void delete_ticket_node_by_id(struct ticket_details **head, char *ticket_id) {
     struct ticket_details *temp = *head;
@@ -93,11 +113,12 @@ void save_nodes_to_file(struct ticket_details *head) {
 
     struct ticket_details *temp = head;
     while (temp != NULL) {
-        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
             temp->username,
             temp->ticket_id,temp->helptopic, temp->issue_summary,
                 temp->problem_explaination, temp->location,
-                temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
+                temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time,
+                temp->assigned_engineer);
         temp = temp->next;
     }
     fclose(fp);
@@ -172,6 +193,19 @@ void display_tickets(struct ticket_details *head)
     }
 }
 
+void list_tickets_parsable(struct ticket_details *head)
+{
+    //Display tickets with their assigned engineers
+    struct ticket_details *temp = head;
+    while (temp != NULL) {
+        printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
+               temp->ticket_id, temp->helptopic, temp->issue_summary,
+               temp->problem_explaination, temp->location,
+               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time,temp->assigned_engineer);
+        temp = temp->next;
+    }
+}
+
 struct ticket_details* extract_file_data_to_nodes()
 //The data of each ticket is stored in file from the main function to make  the operations converting them to linkedlist
 {
@@ -203,6 +237,8 @@ struct ticket_details* extract_file_data_to_nodes()
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->Department_Hostel, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->mobilelenumber, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->preferred_time, token);
+            if ((token = strtok(NULL, "|\n"))) strcpy(new_node->assigned_engineer, token);
+            else strcpy(new_node->assigned_engineer, "Unassigned");
         }
 
         if (head == NULL) {
@@ -218,118 +254,6 @@ struct ticket_details* extract_file_data_to_nodes()
     return head;
 }
 
-char *assign_engineer(char * str, char * text);
-
-void list_tickets_parsable(struct ticket_details *head)
-{
-    //since we need to send the data to python in a parsable format we used
-    //this function this will send to fetchticketsfunction in python
-    struct ticket_details *temp = head;
-    while (temp != NULL) {
-        char assigned_engineer_name[100];
-
-        strcpy(temp->assigned_engineer, assign_engineer(temp->helptopic, assigned_engineer_name));
-
-        printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
-               temp->ticket_id, temp->helptopic, temp->issue_summary,
-               temp->problem_explaination, temp->location,
-               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time,temp->assigned_engineer);
-        temp = temp->next;
-    }
-}
-//LINKED LIST END
-
-//HASHTABLE START
-struct usernode *hash_table[TABLE_SIZE]={NULL};
-
-// Simple Hash Function (DJB2)
-unsigned int hash_function(char *username) {
-    unsigned int hash = 5381;
-    int c;
-    while ((c = *username++))
-        hash = ((hash << 5) + hash) + c;
-    return hash % TABLE_SIZE;
-}
-// Function to insert a ticket into the Hash Table
-void insert_into_hash_table(struct ticket_details *ticket) {
-    unsigned int index = hash_function(ticket->username);
-
-    // Check if user already exists in this bucket
-    struct usernode *curr_user = hash_table[index];
-    while (curr_user != NULL) {
-        if (strcmp(curr_user->username, ticket->username) == 0) {
-            // User found, add ticket to their list
-            ticket->next = curr_user->tickets_head;
-            curr_user->tickets_head = ticket;
-            return;
-        }
-        curr_user = curr_user->next;
-    }
-    // User not found, create a new UserNode
-    struct usernode *new_user = (struct usernode *)malloc(sizeof(struct usernode));
-    strcpy(new_user->username, ticket->username);
-    new_user->tickets_head = ticket;
-    ticket->next = NULL; // This is the first ticket for this new user node
-
-    // Add usernode to the hash table bucket (chaining)
-    new_user->next = hash_table[index];
-    hash_table[index] = new_user;
-}
-
-// Function to display tickets for a specific user
-void display_user_tickets(char *username) {
-    unsigned int index = hash_function(username);
-    struct usernode *curr_user = hash_table[index];
-
-    while (curr_user != NULL) {
-        if (strcmp(curr_user->username, username) == 0) {
-            list_tickets_parsable(curr_user->tickets_head);
-            return;
-        }
-        curr_user = curr_user->next;
-    }
-}
-//HASHTABLE END
-
-// --- QUEUE STRUCTURES ---
-struct Engineer {
-    char name[100];
-    char department[100];
-    struct Engineer *next;
-};
-
-struct Queue {
-    struct Engineer *front;
-    struct Engineer *rear;
-};
-
-void initQueue(struct Queue *q) {
-    q->front = NULL;
-    q->rear = NULL;
-}
-
-void enqueue(struct Queue *q, char *name, char *department) {
-    struct Engineer *new_eng = (struct Engineer *)malloc(sizeof(struct Engineer));
-    strcpy(new_eng->name, name);
-    strcpy(new_eng->department, department);
-    new_eng->next = NULL;
-    if (q->rear == NULL) {
-        q->front = q->rear = new_eng;
-        return;
-    }
-    q->rear->next = new_eng;
-    q->rear = new_eng;
-}
-
-struct Engineer* dequeue(struct Queue *q) {
-    if (q->front == NULL) return NULL;
-    struct Engineer *temp = q->front;
-    q->front = q->front->next;
-    if (q->front == NULL) q->rear = NULL;
-    return temp;
-}
-
-// --- SMART ASSIGNMENT LOGIC ---
 char *assign_engineer(char *helptopic, char *assigned_name) {
     FILE *fp = fopen("engineers.txt", "r");
     if (fp == NULL) {
@@ -389,6 +313,159 @@ char *assign_engineer(char *helptopic, char *assigned_name) {
     return assigned_name;
 }
 
+void close_and_reassign_ticket(char *ticket_id_to_close) {
+    struct ticket_details *head = extract_file_data_to_nodes();
+    if (head == NULL) {
+        printf("ERROR: Could not load tickets\n");
+        return;
+    }
+
+    // Find the ticket being closed and get its assigned engineer
+    struct ticket_details *ticket_to_close = find_ticket_id_node(&head, ticket_id_to_close);
+    if (ticket_to_close == NULL) {
+        printf("ERROR: Ticket not found\n");
+        return;
+    }
+
+    char engineer_to_reassign[100];
+    strcpy(engineer_to_reassign, ticket_to_close->assigned_engineer);
+
+    // Delete the ticket
+    delete_ticket_node_by_id(&head, ticket_id_to_close);
+
+    // Find the first unassigned ticket
+    struct ticket_details *temp = head;
+    struct ticket_details *unassigned_ticket = NULL;
+    
+    while (temp != NULL) {
+        if (strcmp(temp->assigned_engineer, "Unassigned") == 0) {
+            unassigned_ticket = temp;
+            break;
+        }
+        temp = temp->next;
+    }
+
+    // If found an unassigned ticket, assign the engineer to it
+    if (unassigned_ticket != NULL && strcmp(engineer_to_reassign, "Unassigned") != 0) {
+        strcpy(unassigned_ticket->assigned_engineer, engineer_to_reassign);
+        printf("Engineer %s reassigned to ticket %s\n", engineer_to_reassign, unassigned_ticket->ticket_id);
+    } else if (unassigned_ticket != NULL) {
+        printf("Ticket closed. No engineer to reassign.\n");
+    } else {
+        printf("Ticket closed. No unassigned tickets available for reassignment.\n");
+    }
+
+    // Save updated tickets to file
+    save_nodes_to_file(head);
+}
+
+void assign_all_unassigned_tickets() {
+    struct ticket_details *head = extract_file_data_to_nodes();
+    if (head == NULL) {
+        printf("ERROR: Could not load tickets\n");
+        return;
+    }
+
+    int assigned_count = 0;
+    struct ticket_details *temp = head;
+    
+    // Go through all tickets and assign engineers to unassigned ones
+    while (temp != NULL) {
+        if (strcmp(temp->assigned_engineer, "Unassigned") == 0) {
+            char assigned_engineer[100];
+            assign_engineer(temp->helptopic, assigned_engineer);
+            strcpy(temp->assigned_engineer, assigned_engineer);
+            printf("Assigned %s to ticket %s (Topic: %s)\n", assigned_engineer, temp->ticket_id, temp->helptopic);
+            assigned_count++;
+        }
+        temp = temp->next;
+    }
+
+    // Save updated tickets to file
+    save_nodes_to_file(head);
+    printf("Total tickets assigned: %d\n", assigned_count);
+}
+
+//LINKED LIST END
+
+//HASHTABLE START
+struct usernode *hash_table[TABLE_SIZE]={NULL};
+
+// Simple Hash Function (DJB2)
+unsigned int hash_function(char *username) {
+    unsigned int hash = 5381;
+    int c;
+    while ((c = *username++))
+        hash = ((hash << 5) + hash) + c;
+    return hash % TABLE_SIZE;
+}
+// Function to insert a ticket into the Hash Table
+void insert_into_hash_table(struct ticket_details *ticket) {
+    unsigned int index = hash_function(ticket->username);
+
+    // Check if user already exists in this bucket
+    struct usernode *curr_user = hash_table[index];
+    while (curr_user != NULL) {
+        if (strcmp(curr_user->username, ticket->username) == 0) {
+            // User found, add ticket to their list
+            ticket->next = curr_user->tickets_head;
+            curr_user->tickets_head = ticket;
+            return;
+        }
+        curr_user = curr_user->next;
+    }
+    // User not found, create a new UserNode
+    struct usernode *new_user = (struct usernode *)malloc(sizeof(struct usernode));
+    strcpy(new_user->username, ticket->username);
+    new_user->tickets_head = ticket;
+    ticket->next = NULL; // This is the first ticket for this new user node
+
+    // Add usernode to the hash table bucket (chaining)
+    new_user->next = hash_table[index];
+    hash_table[index] = new_user;
+}
+
+// Function to display tickets for a specific user
+void display_user_tickets(char *username) {
+    unsigned int index = hash_function(username);
+    struct usernode *curr_user = hash_table[index];
+
+    while (curr_user != NULL) {
+        if (strcmp(curr_user->username, username) == 0) {
+            list_tickets_parsable(curr_user->tickets_head);
+            return;
+        }
+        curr_user = curr_user->next;
+    }
+}
+//HASHTABLE END
+
+void initQueue(struct Queue *q) {
+    q->front = NULL;
+    q->rear = NULL;
+}
+
+void enqueue(struct Queue *q, char *name, char *department) {
+    struct Engineer *new_eng = (struct Engineer *)malloc(sizeof(struct Engineer));
+    strcpy(new_eng->name, name);
+    strcpy(new_eng->department, department);
+    new_eng->next = NULL;
+    if (q->rear == NULL) {
+        q->front = q->rear = new_eng;
+        return;
+    }
+    q->rear->next = new_eng;
+    q->rear = new_eng;
+}
+
+struct Engineer* dequeue(struct Queue *q) {
+    if (q->front == NULL) return NULL;
+    struct Engineer *temp = q->front;
+    q->front = q->front->next;
+    if (q->front == NULL) q->rear = NULL;
+    return temp;
+}
+
 int main (int argc, char *argv[])
 {
     if (argc == 2 && strcmp(argv[1], "list") == 0) {
@@ -402,6 +479,16 @@ int main (int argc, char *argv[])
             struct ticket_details *top = extract_file_data_to_nodes();
             delete_ticket_node_by_id(&top, argv[2]);
             save_nodes_to_file(top);
+            return 0;
+        }
+    if (argc == 3 && strcmp(argv[1], "close") == 0 ) {
+        //close ticket and reassign engineer to another unassigned ticket
+            close_and_reassign_ticket(argv[2]);
+            return 0;
+        }
+    if (argc == 2 && strcmp(argv[1], "assignall") == 0 ) {
+        //assign all unassigned tickets to engineers
+            assign_all_unassigned_tickets();
             return 0;
         }
     if (argc == 3 && strcmp(argv[1], "viewmytickets") == 0 ) {
@@ -430,6 +517,11 @@ int main (int argc, char *argv[])
     }
     char ticket_id[100];
     create_ticket_id(argv[1], ticket_id);
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n", argv[8], ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+    
+    // Get assigned engineer using the help topic (argv[1])
+    char assigned_engineer[100];
+    assign_engineer(argv[1], assigned_engineer);
+    
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", argv[8], ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], assigned_engineer);
     fclose(fp);   
 }

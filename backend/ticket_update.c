@@ -50,6 +50,51 @@ struct ticket_details *find_ticket_id_node(struct ticket_details **head,char *ti
         }
     }
 }
+
+// --- STACK DATA STRUCTURE ---
+struct StackNode {
+    char ticket_line[1024];
+    struct StackNode* next;
+};
+
+struct Stack {
+    struct StackNode* top;
+};
+
+void initStack(struct Stack* s) {
+    s->top = NULL;
+}
+
+void push(struct Stack* s, char* line) {
+    struct StackNode* newNode = (struct StackNode*)malloc(sizeof(struct StackNode));
+    if (newNode) {
+        strcpy(newNode->ticket_line, line);
+        newNode->next = s->top;
+        s->top = newNode;
+    }
+}
+
+char* pop(struct Stack* s) {
+    if (s->top == NULL) return NULL;
+    struct StackNode* temp = s->top;
+    char* data = (char*)malloc(1024);
+    strcpy(data, temp->ticket_line);
+    s->top = s->top->next;
+    free(temp);
+    return data;
+}
+
+void push_to_stack_file(struct ticket_details *ticket) {
+    FILE *fp = fopen("deleted_tickets.txt", "a");
+    if (fp != NULL) {
+        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+                ticket->username, ticket->ticket_id, ticket->helptopic, ticket->issue_summary,
+                ticket->problem_explaination, ticket->location, ticket->Department_Hostel,
+                ticket->mobilelenumber, ticket->preferred_time, ticket->assigned_engineer);
+        fclose(fp);
+    }
+}
+
 void delete_ticket_node_by_id(struct ticket_details **head, char *ticket_id) {
     struct ticket_details *temp = *head;
     struct ticket_details *prev = NULL;
@@ -61,6 +106,7 @@ void delete_ticket_node_by_id(struct ticket_details **head, char *ticket_id) {
 
     // If head node itself holds the ticket_id to be deleted
     if (temp != NULL && strcmp(temp->ticket_id, ticket_id) == 0) {
+        push_to_stack_file(temp);
         *head = temp->next;
         free(temp);
         printf("Ticket %s deleted successfully.\n", ticket_id);
@@ -79,6 +125,7 @@ void delete_ticket_node_by_id(struct ticket_details **head, char *ticket_id) {
         printf("Ticket %s not found.\n", ticket_id);
         return;
     }
+    push_to_stack_file(temp);
     prev->next=temp->next;
     free(temp);
     printf("Ticket %s deleted successfully.\n", ticket_id);
@@ -93,11 +140,11 @@ void save_nodes_to_file(struct ticket_details *head) {
 
     struct ticket_details *temp = head;
     while (temp != NULL) {
-        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+        fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
             temp->username,
             temp->ticket_id,temp->helptopic, temp->issue_summary,
                 temp->problem_explaination, temp->location,
-                temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time);
+                temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time, temp->assigned_engineer);
         temp = temp->next;
     }
     fclose(fp);
@@ -203,6 +250,7 @@ struct ticket_details* extract_file_data_to_nodes()
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->Department_Hostel, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->mobilelenumber, token);
             if ((token = strtok(NULL, "|\n"))) strcpy(new_node->preferred_time, token);
+            if((token =strtok(NULL, "|\n"))) strcpy(new_node->assigned_engineer, token);
         }
 
         if (head == NULL) {
@@ -218,22 +266,16 @@ struct ticket_details* extract_file_data_to_nodes()
     return head;
 }
 
-char *assign_engineer(char * str, char * text);
-
 void list_tickets_parsable(struct ticket_details *head)
 {
     //since we need to send the data to python in a parsable format we used
     //this function this will send to fetchticketsfunction in python
     struct ticket_details *temp = head;
     while (temp != NULL) {
-        char assigned_engineer_name[100];
-
-        strcpy(temp->assigned_engineer, assign_engineer(temp->helptopic, assigned_engineer_name));
-
         printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
                temp->ticket_id, temp->helptopic, temp->issue_summary,
                temp->problem_explaination, temp->location,
-               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time,temp->assigned_engineer);
+               temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time, temp->assigned_engineer);
         temp = temp->next;
     }
 }
@@ -242,18 +284,18 @@ void list_tickets_parsable(struct ticket_details *head)
 //HASHTABLE START
 struct usernode *hash_table[TABLE_SIZE]={NULL};
 
-// Simple Hash Function (DJB2)
+// Simple Hash Function (DJB2) 
 unsigned int hash_function(char *username) {
     unsigned int hash = 5381;
     int c;
     while ((c = *username++))
-        hash = ((hash << 5) + hash) + c;
+        hash = ((hash << 5) + hash) + c; 
     return hash % TABLE_SIZE;
 }
 // Function to insert a ticket into the Hash Table
 void insert_into_hash_table(struct ticket_details *ticket) {
     unsigned int index = hash_function(ticket->username);
-
+    
     // Check if user already exists in this bucket
     struct usernode *curr_user = hash_table[index];
     while (curr_user != NULL) {
@@ -270,7 +312,7 @@ void insert_into_hash_table(struct ticket_details *ticket) {
     strcpy(new_user->username, ticket->username);
     new_user->tickets_head = ticket;
     ticket->next = NULL; // This is the first ticket for this new user node
-
+    
     // Add usernode to the hash table bucket (chaining)
     new_user->next = hash_table[index];
     hash_table[index] = new_user;
@@ -280,7 +322,7 @@ void insert_into_hash_table(struct ticket_details *ticket) {
 void display_user_tickets(char *username) {
     unsigned int index = hash_function(username);
     struct usernode *curr_user = hash_table[index];
-
+    
     while (curr_user != NULL) {
         if (strcmp(curr_user->username, username) == 0) {
             list_tickets_parsable(curr_user->tickets_head);
@@ -330,11 +372,11 @@ struct Engineer* dequeue(struct Queue *q) {
 }
 
 // --- SMART ASSIGNMENT LOGIC ---
-char *assign_engineer(char *helptopic, char *assigned_name) {
+void assign_engineer(char *helptopic, char *assigned_name) {
     FILE *fp = fopen("engineers.txt", "r");
     if (fp == NULL) {
         strcpy(assigned_name, "Unassigned");
-        return assigned_name;
+        return;
     }
 
     struct Queue dept_queue;
@@ -347,10 +389,10 @@ char *assign_engineer(char *helptopic, char *assigned_name) {
     while (fgets(line, sizeof(line), fp)) {
         if (strlen(line) <= 1) continue;
         line[strcspn(line, "\r\n")] = 0; // Remove newline
-
+        
         char *dept = strtok(line, "|");
         char *name = strtok(NULL, "");
-
+        
         if (dept && name) {
             if (strcmp(dept, helptopic) == 0) {
                 enqueue(&dept_queue, name, dept);
@@ -386,11 +428,69 @@ char *assign_engineer(char *helptopic, char *assigned_name) {
         }
         fclose(fp);
     }
-    return assigned_name;
 }
 
 int main (int argc, char *argv[])
 {
+    if (argc == 2 && strcmp(argv[1], "undo") == 0) {
+        FILE *fp_stack = fopen("deleted_tickets.txt", "r");
+        if (fp_stack == NULL) {
+            printf("Nothing to undo.\n");
+            return 0;
+        }
+
+        struct Stack s;
+        initStack(&s);
+        char line[1024];
+
+        // 1. Read file and PUSH onto stack
+        while (fgets(line, sizeof(line), fp_stack)) {
+            push(&s, line);
+        }
+        fclose(fp_stack);
+
+        // 2. POP the last deleted ticket
+        char* restored_ticket = pop(&s);
+        
+        if (restored_ticket == NULL) {
+            printf("Nothing to undo.\n");
+            return 0;
+        }
+
+        // 3. Restore to database
+        FILE *fp_tickets = fopen("ticket_credentials.txt", "a");
+        if (fp_tickets != NULL) {
+            fprintf(fp_tickets, "%s", restored_ticket);
+            fclose(fp_tickets);
+        }
+        free(restored_ticket);
+
+        // 4. Save remaining stack back to file (Reverse order to maintain stack)
+        // Note: Since pop() gave us the top, we need to get the rest of the items
+        // In a real app, we'd rebuild the file from the remaining stack.
+        fp_stack = fopen("deleted_tickets.txt", "w");
+        if (fp_stack != NULL) {
+            struct Stack tempStack;
+            initStack(&tempStack);
+            
+            // Move to temp stack to reverse order for correct file writing
+            char* moveLine;
+            while ((moveLine = pop(&s)) != NULL) {
+                push(&tempStack, moveLine);
+                free(moveLine);
+            }
+            
+            while ((moveLine = pop(&tempStack)) != NULL) {
+                fprintf(fp_stack, "%s", moveLine);
+                free(moveLine);
+            }
+            fclose(fp_stack);
+        }
+        
+        printf("Undo successful.\n");
+        return 0;
+    }
+
     if (argc == 2 && strcmp(argv[1], "list") == 0) {
         //fetch ticket
             struct ticket_details *top = extract_file_data_to_nodes();
@@ -413,9 +513,9 @@ int main (int argc, char *argv[])
             struct ticket_details *next_node = temp->next;
             insert_into_hash_table(temp);
             temp = next_node;
-        }
-        display_user_tickets(argv[2]);
-    return 0;
+        }   
+        display_user_tickets(argv[2]);  
+    return 0;        
     }
 
     if (argc < 9) {
@@ -430,6 +530,12 @@ int main (int argc, char *argv[])
     }
     char ticket_id[100];
     create_ticket_id(argv[1], ticket_id);
-    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s\n", argv[8], ticket_id, argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
-    fclose(fp);   
+
+    char assigned_engineer_name[100];
+    assign_engineer(argv[1], assigned_engineer_name); 
+    fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", 
+            argv[8], ticket_id, argv[1], argv[2], argv[3], 
+            argv[4], argv[5], argv[6], argv[7], assigned_engineer_name);
+    fclose(fp);
+    
 }

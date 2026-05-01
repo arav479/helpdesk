@@ -46,13 +46,17 @@ def fetch_user_tickets():
     
     return tickets
 
-def fetch_tickets():
+def fetch_tickets(query=None):
     tickets = []
     exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
     
     try:
         # Attempt to get tickets using C executable
-        result = subprocess.run([exe_path, "list"], capture_output=True, text=True)
+        if query:
+            result = subprocess.run([exe_path, "search", query], capture_output=True, text=True)
+        else:
+            result = subprocess.run([exe_path, "list"], capture_output=True, text=True)
+            
         if result.returncode == 0:
             lines = result.stdout.strip().split("\n")
             for line in lines:
@@ -99,6 +103,13 @@ def fetch_tickets():
 def dashboard():
     tickets = fetch_tickets()
     return render_template("user_dashboard.html", tickets=tickets)
+
+@app.route('/search')
+def search():
+    query = request.args.get('q')
+    email = session.get('email')
+    tickets = fetch_tickets(query)
+    return render_template("admin_dashboard.html", tickets=tickets, Email=email)
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -177,6 +188,18 @@ def delete_ticket():
     print("Deleted:",ticket_id)
     tickets=fetch_tickets()
     return render_template("admin_dashboard.html", tickets=tickets, Email=session['email'])
+
+@app.route('/undo', methods=['POST'])
+def undo_delete():
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
+    result = subprocess.run(
+        [exe_path, 'undo'],
+        capture_output=True,
+        text=True,
+    )
+    print("Undo result:", result.stdout.strip())
+    tickets = fetch_tickets()
+    return render_template("admin_dashboard.html", tickets=tickets, Email=session.get('email'))
 
 @app.route('/viewmytickets', methods=['GET', 'POST'])
 def view_my_tickets():

@@ -1,28 +1,28 @@
+Plumbing|Geetha
+Plumbing|Arun
+Plumbing|Sam
+Plumbing|Rita
+Plumbing|Nithin
 AC-Problem|Anita
 AC-Problem|Vikram
 AC-Problem|Latha
 AC-Problem|Ravi
 AC-Problem|Suresh
+Attendance System|Rohit
+Attendance System|Vijay
 Attendance System|Shreya
 Attendance System|Anand
 Attendance System|Preeti
-Attendance System|Rohit
-Attendance System|Vijay
-Plumbing|Rita
-Plumbing|Nithin
-Plumbing|Geetha
-Plumbing|Arun
-Plumbing|Sam
+Electrical|Sanjay
 Electrical|John
 Electrical|Doe
 Electrical|Priya
 Electrical|Manish
-Electrical|Sanjay
-Network|Alice
-Network|Bob
 Network|Rahul
 Network|Deepak
 Network|Kavita
+Network|Alice
+Network|Bob
 Wi-Fi-LAN Internet|Kiran
 Wi-Fi-LAN Internet|Maya
 Wi-Fi-LAN Internet|Siddharth

@@ -68,9 +68,16 @@
 
         <!-- Tickets Table Section -->
         <div class="tickets-container">
-            <div class="table-header">
+            <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>Incoming Tickets</h2>
-                <button class="btn-primary">Export Report</button>
+                <form action="/search" method="GET" style="display: flex; gap: 1rem; margin: 0;">
+                    <input type="text" name="q" id="ticketSearch" placeholder="Search tickets (ID, Topic, Engineer)..." style="padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; outline: none; font-family: inherit; width: 300px;" value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="btn-primary">Search</button>
+                    <a href="/dashboard" class="btn-primary" style="text-decoration: none; display: flex; align-items: center;">Clear</a>
+                </form>
+                <form action="/undo" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn-primary" style="background-color: #6366f1;">Undo Last Delete</button>
+                </form>
             </div>
             <table>
                 <thead>

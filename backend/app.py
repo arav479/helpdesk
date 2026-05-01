@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for, flash
 import subprocess
 import os
 
@@ -101,8 +101,17 @@ def fetch_tickets(query=None):
 
 @app.route('/dashboard')
 def dashboard():
-    tickets = fetch_tickets()
-    return render_template("user_dashboard.html", tickets=tickets)
+    role = session.get('role')
+    email = session.get('email')
+    
+    if role == 'admin':
+        tickets = fetch_tickets()
+        return render_template("admin_dashboard.html", tickets=tickets, Email=email)
+    elif role == 'user':
+        tickets = fetch_user_tickets()
+        return render_template("user_dashboard.html", tickets=tickets, Email=email)
+    else:
+        return redirect(url_for('home'))
 
 @app.route('/search')
 def search():
@@ -143,16 +152,20 @@ def create():
         )
         output = result.stdout.strip()
         if output == "SUCCESS:admin": 
+            session['role'] = 'admin'
             return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
         elif output == "SUCCESS:user":
-            return render_template("user_dashboard.html",Email=email)
+            session['role'] = 'user'
+            return render_template("user_dashboard.html", tickets=fetch_user_tickets(), Email=email)
         else:
             return render_template("login.html", error="Invalid Email or Password")
     
     if role == 'admin':
+        session['role'] = 'admin'
         return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
     else:
-        return render_template("user_dashboard.html", tickets=fetch_tickets(),Email=email)
+        session['role'] = 'user'
+        return render_template("user_dashboard.html", tickets=fetch_user_tickets(), Email=email)
 
 @app.route('/ticket_credentials', methods=['POST']) 
 def ticket_credentials():
@@ -181,11 +194,24 @@ def delete_ticket():
     ticket_id = request.form['ticket_id']
     exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
     result=subprocess.run(
-        [exe_path, 'delete', ticket_id],
+        [exe_path, 'close', ticket_id],
         capture_output=True,
         text=True,
         )
-    print("Deleted:",ticket_id)
+    print("Closed ticket and reassigned engineer:",ticket_id)
+    flash(f"Ticket {ticket_id} closed and engineer reassigned.", "success")
+    return redirect(url_for('dashboard'))
+
+@app.route('/assign_all_unassigned', methods=['POST'])
+def assign_all_unassigned():
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
+    result=subprocess.run(
+        [exe_path, 'assignall'],
+        capture_output=True,
+        text=True,
+        )
+    print("Assigned all unassigned tickets")
+    print(result.stdout)
     tickets=fetch_tickets()
     return render_template("admin_dashboard.html", tickets=tickets, Email=session['email'])
 
@@ -198,8 +224,8 @@ def undo_delete():
         text=True,
     )
     print("Undo result:", result.stdout.strip())
-    tickets = fetch_tickets()
-    return render_template("admin_dashboard.html", tickets=tickets, Email=session.get('email'))
+    flash("Last deletion undone successfully.", "info")
+    return redirect(url_for('dashboard'))
 
 @app.route('/viewmytickets', methods=['GET', 'POST'])
 def view_my_tickets():
@@ -212,6 +238,7 @@ def support_page():
 @app.route('/logout')
 def logout():
     session.pop('email', None)
+    session.pop('role', None)
     return redirect(url_for('home'))
 if __name__ == "__main__":
     app.run(debug=True)

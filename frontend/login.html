@@ -23,7 +23,8 @@
     <div class="nav">
         <a href="/support" class="nav-link"><span>support centre</span></a>
         <span>open new ticket</span>
-        <span class="active">Ticket</span>
+        <span class="active">User / Admin Login</span>
+        <a href="/engineer_login" class="nav-link"><span>🔧 Engineer Login</span></a>
     </div>
 
     <div class="header-text">
@@ -43,7 +44,7 @@
             </div>
             {% endif %}
             <form action="/create" method="POST">
-                <input type="email" placeholder="Email / username" name="email" required>
+                <input type="text" placeholder="Email address" name="email" required>
                 <input type="password" placeholder="Password" name="password" required>
                 <select name="role">
                     <option value="user">User</option>
@@ -53,6 +54,10 @@
                 <p>If already have a account </p>
                 <button type="submit" name="login" value="login">LOGIN</button>
             </form>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 10px;">Are you a support engineer?</p>
+                <a href="/engineer_login" style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 0.9rem; transition: 0.3s;">🔧 Engineer Login Portal</a>
+            </div>
         </div>
     </div>
 

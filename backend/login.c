@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_LENGTH 50
+#define MAX_LENGTH 100
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 
     char *action = argv[1];
 
+    /* ======= REGISTER (existing) ======= */
     if (strcmp(action, "register") == 0)
     {
         if (argc != 5)
@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    /* ======= LOGIN (existing - user/admin) ======= */
     else if (strcmp(action, "login") == 0)
     {
         if (argc != 4)
@@ -87,6 +89,61 @@ int main(int argc, char *argv[])
         }
         fclose(file);
         printf("FAILURE: Invalid credentials.");
+        return 1;
+    }
+
+    /* ======================================================
+       ENGINEER LOGIN (NEW)
+       - Reads engineers.txt
+       - Format: Department|ID|Name|Email|Password|Available
+       - Matches EMAIL + PASSWORD
+       - Returns: SUCCESS:engineer:Name
+       ====================================================== */
+    else if (strcmp(action, "engineer_login") == 0)
+    {
+        if (argc != 4)
+        {
+            printf("FAILURE: Incorrect arguments for engineer login.\n");
+            return 1;
+        }
+
+        char *inputEmail = argv[2];
+        char *inputPassword = argv[3];
+
+        FILE *file = fopen("engineers.txt", "r");
+        if (file == NULL)
+        {
+            printf("FAILURE: Engineers file not found.\n");
+            return 1;
+        }
+
+        char line[300];
+        while (fgets(line, sizeof(line), file))
+        {
+            if (strlen(line) <= 1) continue;
+            line[strcspn(line, "\r\n")] = 0;
+
+            /* Parse: Department|ID|Name|Email|Password|Available */
+            char *dept = strtok(line, "|");
+            char *id_str = strtok(NULL, "|");
+            char *name = strtok(NULL, "|");
+            char *email = strtok(NULL, "|");
+            char *pass = strtok(NULL, "|");
+            char *avail = strtok(NULL, "|");
+
+            if (dept && id_str && name && email && pass)
+            {
+                /* Match email and password */
+                if (strcmp(inputEmail, email) == 0 && strcmp(inputPassword, pass) == 0)
+                {
+                    fclose(file);
+                    printf("SUCCESS:engineer:%s", name);
+                    return 0;
+                }
+            }
+        }
+        fclose(file);
+        printf("FAILURE: Invalid engineer credentials.");
         return 1;
     }
 

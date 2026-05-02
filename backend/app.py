@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, session, redirect, url_for, flash
+from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify
+from datetime import datetime
 import subprocess
 import os
 
@@ -6,9 +7,134 @@ import os
 app = Flask(__name__,template_folder='../frontend',static_folder="../frontend")
 app.secret_key = 'some_very_secret_key'
 
+NOTIFICATIONS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'notifications.txt')
+
+def load_notifications(engineer_name):
+    """Load notifications for a specific engineer from file"""
+    notifications = []
+    try:
+        if os.path.exists(NOTIFICATIONS_FILE):
+            with open(NOTIFICATIONS_FILE, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split('|')
+                    # Format: engineer_name|type|title|message|timestamp|read
+                    if len(parts) >= 6 and parts[0] == engineer_name:
+                        notifications.append({
+                            'engineer': parts[0],
+                            'type': parts[1],
+                            'title': parts[2],
+                            'message': parts[3],
+                            'timestamp': parts[4],
+                            'read': parts[5] == '1'
+                        })
+    except Exception as e:
+        print(f"Error loading notifications: {e}")
+    # Return newest first
+    notifications.reverse()
+    return notifications
+
+def add_notification(engineer_name, notif_type, title, message):
+    """Add a notification for an engineer"""
+    try:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+        with open(NOTIFICATIONS_FILE, 'a') as f:
+            f.write(f"{engineer_name}|{notif_type}|{title}|{message}|{timestamp}|0\n")
+    except Exception as e:
+        print(f"Error adding notification: {e}")
+
+def get_unread_count(engineer_name):
+    """Get the count of unread notifications for an engineer"""
+    count = 0
+    try:
+        if os.path.exists(NOTIFICATIONS_FILE):
+            with open(NOTIFICATIONS_FILE, 'r') as f:
+                for line in f:
+                    parts = line.strip().split('|')
+                    if len(parts) >= 6 and parts[0] == engineer_name and parts[5] == '0':
+                        count += 1
+    except:
+        pass
+    return count
+
+def mark_notifications_read(engineer_name):
+    """Mark all notifications as read for an engineer"""
+    try:
+        if not os.path.exists(NOTIFICATIONS_FILE):
+            return
+        lines = []
+        with open(NOTIFICATIONS_FILE, 'r') as f:
+            lines = f.readlines()
+        with open(NOTIFICATIONS_FILE, 'w') as f:
+            for line in lines:
+                parts = line.strip().split('|')
+                if len(parts) >= 6 and parts[0] == engineer_name:
+                    parts[5] = '1'
+                    f.write('|'.join(parts) + '\n')
+                else:
+                    f.write(line)
+    except Exception as e:
+        print(f"Error marking notifications read: {e}")
+
+def clear_notifications(engineer_name):
+    """Clear all notifications for an engineer"""
+    try:
+        if not os.path.exists(NOTIFICATIONS_FILE):
+            return
+        lines = []
+        with open(NOTIFICATIONS_FILE, 'r') as f:
+            lines = f.readlines()
+        with open(NOTIFICATIONS_FILE, 'w') as f:
+            for line in lines:
+                parts = line.strip().split('|')
+                if len(parts) >= 6 and parts[0] == engineer_name:
+                    continue  # Skip this engineer's notifications
+                f.write(line)
+    except Exception as e:
+        print(f"Error clearing notifications: {e}")
+
 @app.route('/')
 def home():
     return render_template("login.html")
+
+# ======== SEPARATE ENGINEER LOGIN PAGE ========
+@app.route('/engineer_login', methods=['GET', 'POST'])
+def engineer_login_page():
+    if request.method == 'GET':
+        return render_template("engineer_login.html")
+    
+    # POST - handle engineer login
+    email = request.form['email']
+    password = request.form['password']
+    
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "login.exe")
+    result = subprocess.run(
+        [exe_path, 'engineer_login', email, password],
+        capture_output=True,
+        text=True,
+    )
+    output = result.stdout.strip()
+    
+    if output.startswith("SUCCESS:engineer:"):
+        engineer_name = output.split(":")[2]
+        session['role'] = 'engineer'
+        session['engineer_name'] = engineer_name
+        session['email'] = email
+        
+        # Create a welcome notification for the engineer
+        add_notification(
+            engineer_name,
+            'info',
+            'Login Successful',
+            f'Welcome back, {engineer_name}! You are now logged in.'
+        )
+        
+        tickets = fetch_engineer_tickets(engineer_name)
+        return render_template("engineer_dashboard.html", tickets=tickets, Email=email, EngineerName=engineer_name)
+    else:
+        return render_template("engineer_login.html", error="Invalid engineer email or password. Please try again.")
 
 def fetch_user_tickets():
     tickets = []
@@ -38,7 +164,8 @@ def fetch_user_tickets():
                         "dept": parts[6],
                         "mobile": parts[7],
                         "time": parts[8],
-                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned"
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned",
+                        "status": parts[10].strip() if len(parts) > 10 else "Open"
                     })
         
     except Exception as e:
@@ -72,7 +199,8 @@ def fetch_tickets(query=None):
                         "dept": parts[6],
                         "mobile": parts[7],
                         "time": parts[8],
-                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned"
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned",
+                        "status": parts[10].strip() if len(parts) > 10 else "Open"
                     })
         else:
             f=open("ticket_credentials.txt",'r')
@@ -90,13 +218,46 @@ def fetch_tickets(query=None):
                         "dept": parts[6],
                         "mobile": parts[7],
                         "time": parts[8],
-                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned"
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned",
+                        "status": parts[10].strip() if len(parts) > 10 else "Open"
                     })
                 line = f.readline()
             f.close()
     except Exception as e:
         print(f"Error fetching tickets: {e}")
     
+    return tickets
+
+def fetch_engineer_tickets(engineer_name):
+    """Fetch tickets assigned to a specific engineer"""
+    tickets = []
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
+    try:
+        result = subprocess.run(
+            [exe_path, 'viewengineertickets', engineer_name],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            lines = result.stdout.strip().split("\n")
+            for line in lines:
+                parts = line.split("|")
+                if len(parts) >= 9:
+                    tickets.append({
+                        "username": parts[0],
+                        "id": parts[1],
+                        "topic": parts[2],
+                        "summary": parts[3],
+                        "explanation": parts[4],
+                        "location": parts[5],
+                        "dept": parts[6],
+                        "mobile": parts[7],
+                        "time": parts[8],
+                        "engineer": parts[9].strip() if len(parts) > 9 else "Unassigned",
+                        "status": parts[10].strip() if len(parts) > 10 else "Open"
+                    })
+    except Exception as e:
+        print(f"Error fetching engineer tickets: {e}")
     return tickets
 
 @app.route('/dashboard')
@@ -107,6 +268,10 @@ def dashboard():
     if role == 'admin':
         tickets = fetch_tickets()
         return render_template("admin_dashboard.html", tickets=tickets, Email=email)
+    elif role == 'engineer':
+        engineer_name = session.get('engineer_name')
+        tickets = fetch_engineer_tickets(engineer_name)
+        return render_template("engineer_dashboard.html", tickets=tickets, Email=email, EngineerName=engineer_name)
     elif role == 'user':
         tickets = fetch_user_tickets()
         return render_template("user_dashboard.html", tickets=tickets, Email=email)
@@ -145,24 +310,46 @@ def create():
             return render_template("login.html", error="Registration failed. Email might already exist.")
        
     elif 'login' in request.form:
-        result = subprocess.run(
-            [exe_path, 'login', email, password],
-            capture_output=True,
-            text=True,
-        )
-        output = result.stdout.strip()
-        if output == "SUCCESS:admin": 
-            session['role'] = 'admin'
-            return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
-        elif output == "SUCCESS:user":
-            session['role'] = 'user'
-            return render_template("user_dashboard.html", tickets=fetch_user_tickets(), Email=email)
+        # Check if engineer login
+        if role == 'engineer':
+            result = subprocess.run(
+                [exe_path, 'engineer_login', email, password],
+                capture_output=True,
+                text=True,
+            )
+            output = result.stdout.strip()
+            if output.startswith("SUCCESS:engineer:"):
+                engineer_name = output.split(":")[2]
+                session['role'] = 'engineer'
+                session['engineer_name'] = engineer_name
+                session['email'] = email  # Store engineer name as email for display
+                tickets = fetch_engineer_tickets(engineer_name)
+                return render_template("engineer_dashboard.html", tickets=tickets, Email=email, EngineerName=engineer_name)
+            else:
+                return render_template("login.html", error="Invalid Engineer Name or Password")
         else:
-            return render_template("login.html", error="Invalid Email or Password")
+            # Regular user/admin login
+            result = subprocess.run(
+                [exe_path, 'login', email, password],
+                capture_output=True,
+                text=True,
+            )
+            output = result.stdout.strip()
+            if output == "SUCCESS:admin": 
+                session['role'] = 'admin'
+                return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
+            elif output == "SUCCESS:user":
+                session['role'] = 'user'
+                return render_template("user_dashboard.html", tickets=fetch_user_tickets(), Email=email)
+            else:
+                return render_template("login.html", error="Invalid Email or Password")
     
     if role == 'admin':
         session['role'] = 'admin'
         return render_template("admin_dashboard.html", tickets=fetch_tickets(),Email=email)
+    elif role == 'engineer':
+        session['role'] = 'engineer'
+        return redirect(url_for('dashboard'))
     else:
         session['role'] = 'user'
         return render_template("user_dashboard.html", tickets=fetch_user_tickets(), Email=email)
@@ -186,12 +373,42 @@ def ticket_credentials():
         [exe_path,helptopic,issue_summary,problem_explaination,location,Department_Hostel,mobilenumber,preferred_time,email],
         capture_output=True,
         text=True)
-    if result:
-        return render_template("ticket_confirmation.html")
+    
+    # Parse the C output for ASSIGNED: line
+    assigned_engineer = "Unassigned"
+    ticket_id = ""
+    if result.stdout:
+        for line in result.stdout.strip().split("\n"):
+            if line.startswith("ASSIGNED:"):
+                parts = line.replace("ASSIGNED:", "").split("|")
+                assigned_engineer = parts[0] if len(parts) > 0 else "Unassigned"
+                ticket_id = parts[1] if len(parts) > 1 else ""
+    
+    # Create notification for the assigned engineer
+    if assigned_engineer != "Unassigned":
+        add_notification(
+            assigned_engineer,
+            'new_ticket',
+            'New Ticket Assigned',
+            f'Ticket {ticket_id} - {helptopic}: {issue_summary} at {location}'
+        )
+    
+    return render_template("ticket_confirmation.html", 
+                           engineer=assigned_engineer, 
+                           ticket_id=ticket_id)
 
 @app.route('/delete', methods=['POST'])
 def delete_ticket():
     ticket_id = request.form['ticket_id']
+    
+    # Find the engineer assigned to this ticket before deleting
+    all_tickets = fetch_tickets()
+    assigned_eng = None
+    for t in all_tickets:
+        if t['id'] == ticket_id:
+            assigned_eng = t.get('engineer', 'Unassigned')
+            break
+    
     exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
     result=subprocess.run(
         [exe_path, 'close', ticket_id],
@@ -199,7 +416,42 @@ def delete_ticket():
         text=True,
         )
     print("Closed ticket and reassigned engineer:",ticket_id)
+    
+    # Notify the engineer that their ticket was closed by admin
+    if assigned_eng and assigned_eng != 'Unassigned':
+        add_notification(
+            assigned_eng,
+            'info',
+            'Ticket Closed by Admin',
+            f'Ticket {ticket_id} has been closed. You have been reassigned.'
+        )
+    
     flash(f"Ticket {ticket_id} closed and engineer reassigned.", "success")
+    return redirect(url_for('dashboard'))
+
+@app.route('/mark_done', methods=['POST'])
+def mark_done():
+    """Mark a ticket as completed and free the engineer"""
+    ticket_id = request.form['ticket_id']
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
+    result = subprocess.run(
+        [exe_path, 'markdone', ticket_id],
+        capture_output=True,
+        text=True,
+    )
+    print("Mark done result:", result.stdout.strip())
+    
+    # Create notification for the engineer who completed the ticket
+    engineer_name = session.get('engineer_name', '')
+    if engineer_name:
+        add_notification(
+            engineer_name,
+            'completed',
+            'Ticket Completed',
+            f'You successfully resolved ticket {ticket_id}. Great work!'
+        )
+    
+    flash(f"Ticket {ticket_id} marked as DONE! Engineer is now available.", "success")
     return redirect(url_for('dashboard'))
 
 @app.route('/assign_all_unassigned', methods=['POST'])
@@ -231,6 +483,15 @@ def undo_delete():
 def view_my_tickets():
     tickets=fetch_user_tickets()
     return render_template("mytickets.html", tickets=tickets, Email=session.get('email'))
+
+@app.route('/engineer_dashboard')
+def engineer_dashboard():
+    engineer_name = session.get('engineer_name')
+    if not engineer_name:
+        return redirect(url_for('home'))
+    tickets = fetch_engineer_tickets(engineer_name)
+    return render_template("engineer_dashboard.html", tickets=tickets, Email=session.get('email'), EngineerName=engineer_name)
+
 @app.route('/support')
 def support_page():
     return render_template('support.html')
@@ -239,6 +500,36 @@ def support_page():
 def logout():
     session.pop('email', None)
     session.pop('role', None)
+    session.pop('engineer_name', None)
     return redirect(url_for('home'))
+
+# ======== NOTIFICATION API ENDPOINTS ========
+
+@app.route('/api/notifications')
+def api_get_notifications():
+    """API: Get notifications for the logged-in engineer"""
+    engineer_name = session.get('engineer_name')
+    if not engineer_name:
+        return jsonify({'notifications': [], 'unread_count': 0})
+    notifications = load_notifications(engineer_name)
+    unread = get_unread_count(engineer_name)
+    return jsonify({'notifications': notifications, 'unread_count': unread})
+
+@app.route('/api/notifications/read', methods=['POST'])
+def api_mark_read():
+    """API: Mark all notifications as read for the logged-in engineer"""
+    engineer_name = session.get('engineer_name')
+    if engineer_name:
+        mark_notifications_read(engineer_name)
+    return jsonify({'status': 'ok'})
+
+@app.route('/api/notifications/clear', methods=['POST'])
+def api_clear_notifications():
+    """API: Clear all notifications for the logged-in engineer"""
+    engineer_name = session.get('engineer_name')
+    if engineer_name:
+        clear_notifications(engineer_name)
+    return jsonify({'status': 'ok'})
+
 if __name__ == "__main__":
     app.run(debug=True)

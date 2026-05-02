@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Login | SSN Helpdesk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .engineer-login-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: calc(100vh - 220px);
+        }
+
+        .engineer-login-card {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            padding: 40px 45px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(79, 70, 229, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .engineer-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+        }
+
+        .engineer-login-card h2 {
+            text-align: center;
+            color: var(--text-dark);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 6px;
+        }
+
+        .engineer-login-card .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            margin-top: 18px;
+        }
+
+        .engineer-login-card input {
+            display: block;
+            width: 100%;
+            padding: 13px 16px;
+            margin: 0 0 4px;
+            border: 1px solid var(--border-color);
+            background: #F9FAFB;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        .engineer-login-card input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin: 4px 0 0 2px;
+        }
+
+        .btn-engineer-login {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            margin-top: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-engineer-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .error-msg {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .success-msg {
+            background-color: #f0fdf4;
+            color: #22c55e;
+            border: 1px solid #bbf7d0;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="top-banner">
+            <div class="banner_left">
+                <h2>SSN Helpdesk</h2>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav">
+        <a href="/support" class="nav-link"><span>support centre</span></a>
+        <span>open new ticket</span>
+        <a href="/" class="nav-link"><span>User / Admin Login</span></a>
+        <span class="active">Engineer Login</span>
+    </div>
+
+    <div class="header-text">
+        <h2>🔧 Engineer Portal — Sign In</h2>
+    </div>
+
+    <div class="engineer-login-section">
+        <div class="engineer-login-card">
+            <div class="engineer-icon">🔧</div>
+            <h2>Engineer Login</h2>
+            <p class="subtitle">Login with your registered engineer email and password</p>
+
+            {% if error %}
+            <div class="error-msg">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+            <div class="success-msg">{{ success }}</div>
+            {% endif %}
+
+            <form action="/engineer_login" method="POST">
+                <label class="form-label">Email Address</label>
+                <input type="email" placeholder="e.g. ravi@gmail.com" name="email" required>
+                <p class="input-hint">Use your registered engineer email from engineers.txt</p>
+
+                <label class="form-label">Password</label>
+                <input type="password" placeholder="Enter your password" name="password" required>
+
+                <button type="submit" class="btn-engineer-login">🔐 LOGIN AS ENGINEER</button>
+            </form>
+
+            <a href="/" class="back-link">← Back to User / Admin Login</a>
+        </div>
+    </div>
+</body>
+
+</html>

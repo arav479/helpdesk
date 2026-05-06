@@ -12,6 +12,10 @@ USER_DETAILS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'us
 
 VALID_ROLES = {'user', 'admin'}
 
+@app.context_processor
+def inject_theme():
+    return {'theme': session.get('theme', 'light')}
+
 def read_users():
     users = []
     try:
@@ -614,6 +618,20 @@ def admin_settings():
     tickets = fetch_tickets()
     open_tickets = len([ticket for ticket in tickets if ticket.get('status') != 'Completed'])
     return render_template('admin_settings.html', Email=session.get('email'), current_page='settings', user_count=len(read_users()), open_tickets=open_tickets, completed_tickets=len(tickets) - open_tickets, notification_file=os.path.basename(NOTIFICATIONS_FILE))
+
+@app.route('/settings')
+def user_settings():
+    if session.get('role') != 'user':
+        return redirect(url_for('dashboard'))
+    tickets = fetch_user_tickets()
+    open_tickets = len([ticket for ticket in tickets if ticket.get('status') != 'Completed'])
+    return render_template('user_settings.html', Email=session.get('email'), ticket_count=len(tickets), open_tickets=open_tickets, completed_tickets=len(tickets) - open_tickets)
+
+@app.route('/toggle-theme', methods=['POST'])
+def toggle_theme():
+    session['theme'] = 'dark' if session.get('theme', 'light') == 'light' else 'light'
+    return redirect(request.referrer or url_for('dashboard'))
+
 @app.route('/logout')
 def logout():
     session.pop('email', None)

@@ -129,7 +129,7 @@
     </style>
 </head>
 
-<body class="dashboard-body">
+<body class="dashboard-body {{ theme }}-theme">
     <!-- Flash Messages (Toasts) -->
     <div class="toast-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -151,11 +151,12 @@
         </div>
         <nav>
             <ul class="nav-links">
-                <a href="#" class="nav-link active">Dashboard</a>
-                <a href="#" class="nav-link">Active Tickets</a>
-                <a href="#" class="nav-link">Resolved Tips</a>
-                <a href="#" class="nav-link">User Management</a>
-                <a href="#" class="nav-link">Settings</a>
+                <a href="/dashboard" class="nav-link {{ 'active' if current_page == 'dashboard' else '' }}">Dashboard</a>
+                <a href="/admin/active-tickets" class="nav-link {{ 'active' if current_page == 'active' else '' }}">Active Tickets</a>
+                <a href="/admin/resolved-tickets" class="nav-link {{ 'active' if current_page == 'resolved' else '' }}">Resolved Tickets</a>
+                <a href="/admin/users" class="nav-link {{ 'active' if current_page == 'users' else '' }}">User Management</a>
+                <a href="/admin/settings" class="nav-link {{ 'active' if current_page == 'settings' else '' }}">Settings</a>
+                <a href="/support" class="nav-link">Support</a>
                 <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
             </ul>
         </nav>
@@ -233,7 +234,7 @@
                     {% if tickets %}
                     {% for ticket in tickets %}
                     <tr>
-                        <td><span class="badge badge-id">{{ ticket.id }}</span></td>
+                        <td><a href="/ticket/{{ ticket.id }}" class="badge badge-id" style="text-decoration: none;">{{ ticket.id }}</a></td>
                         <td class="topic-cell">{{ ticket.topic }}</td>
                         <td>
                             <div class="summary-text">{{ ticket.summary }}</div>
@@ -311,3 +312,4 @@
 </body>
 
 </html>
+

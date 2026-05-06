@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body class="dashboard-body {{ theme }}-theme">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box"></div>
+            SSN Helpdesk
+        </div>
+        <nav>
+            <ul class="nav-links">
+                {% if role == 'engineer' %}
+                <a href="/engineer_dashboard" class="nav-link">My Work</a>
+                <a href="/support" class="nav-link">Support</a>
+                <a href="/knowledge-base" class="nav-link active">Knowledge Base</a>
+                {% else %}
+                <a href="/dashboard" class="nav-link">Open New Ticket</a>
+                <a href="/viewmytickets" class="nav-link">My Tickets</a>
+                <a href="/knowledge-base" class="nav-link active">Knowledge Base</a>
+                <a href="/support" class="nav-link">Support</a>
+                <a href="/settings" class="nav-link">Settings</a>
+                {% endif %}
+                <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Knowledge Base</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">Quick references for common campus support issues.</p>
+            </div>
+            <div class="admin-profile">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{ engineer_name if role == 'engineer' else email }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">{{ 'Support Engineer' if role == 'engineer' else 'Campus Resident' }}</div>
+                </div>
+                <div class="avatar">KB</div>
+            </div>
+        </header>
+
+        <div class="tickets-container">
+            <div class="table-header">
+                <h2>Common Help Topics</h2>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Before raising a ticket</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>What to Check</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="topic-cell">Wi-Fi and Internet</td><td class="summary-text" style="max-width: 700px; white-space: normal;">Confirm the network name, note your location, and include any error message shown by the device.</td></tr>
+                    <tr><td class="topic-cell">AC and Electrical</td><td class="summary-text" style="max-width: 700px; white-space: normal;">Mention the room or block, equipment affected, and whether the issue is intermittent or constant.</td></tr>
+                    <tr><td class="topic-cell">ERP, LMS, Attendance</td><td class="summary-text" style="max-width: 700px; white-space: normal;">Include the module name, action attempted, account email, and a short summary of the failure.</td></tr>
+                    <tr><td class="topic-cell">Plumbing</td><td class="summary-text" style="max-width: 700px; white-space: normal;">Share the exact location and describe the urgency, such as leak, blockage, or no water supply.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+
+</html>

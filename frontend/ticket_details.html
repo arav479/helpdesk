@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket {{ ticket.id }} | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .detail-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+        }
+
+        .detail-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .detail-item {
+            background: white;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            color: var(--text-main);
+            font-weight: 500;
+            overflow-wrap: anywhere;
+        }
+
+        .detail-wide {
+            grid-column: 1 / -1;
+        }
+
+        .badge-open {
+            background: #FFF7ED;
+            color: #f97316;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-completed {
+            background: #ECFDF5;
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body {{ theme }}-theme">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box"></div>
+            SSN Helpdesk
+        </div>
+        <nav>
+            <ul class="nav-links">
+                {% if role == 'engineer' %}<a href="{{ dashboard_route }}" class="nav-link active">My Work</a>{% elif role == 'admin' %}<a href="{{ dashboard_route }}" class="nav-link active">Dashboard</a>{% else %}<a href="{{ dashboard_route }}" class="nav-link active">Dashboard</a>{% endif %}
+                <a href="/support" class="nav-link">Support</a>{% if role != 'admin' %}<a href="/knowledge-base" class="nav-link">Knowledge Base</a>{% endif %}
+                <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Ticket Details</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">Full information for {{ ticket.id }}</p>
+            </div>
+            <div class="admin-profile">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{ Email }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Helpdesk</div>
+                </div>
+                <div class="avatar">HD</div>
+            </div>
+        </header>
+
+        <div class="detail-panel">
+            <div class="detail-header">
+                <div>
+                    <span class="badge badge-id">{{ ticket.id }}</span>
+                    <h2 style="margin-top: 0.75rem;">{{ ticket.summary }}</h2>
+                </div>
+                {% if ticket.status == 'Completed' %}
+                <span class="badge-completed">Completed</span>
+                {% else %}
+                <span class="badge-open">Open</span>
+                {% endif %}
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Raised By</div>
+                    <div class="detail-value">{{ ticket.username }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Help Topic</div>
+                    <div class="detail-value">{{ ticket.topic }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Location</div>
+                    <div class="detail-value">{{ ticket.location }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Department / Hostel</div>
+                    <div class="detail-value">{{ ticket.dept }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Mobile</div>
+                    <div class="detail-value">{{ ticket.mobile }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Preferred Time</div>
+                    <div class="detail-value">{{ ticket.time }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Assigned Engineer</div>
+                    <div class="detail-value">{{ ticket.engineer }}</div>
+                </div>
+                <div class="detail-item detail-wide">
+                    <div class="detail-label">Detailed Explanation</div>
+                    <div class="detail-value">{{ ticket.explanation }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <a href="{{ dashboard_route }}" class="btn-outline" style="display: inline-block; text-decoration: none;">Back to Dashboard</a>
+        </div>
+    </main>
+</body>
+
+</html>
+

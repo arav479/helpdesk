@@ -414,7 +414,7 @@
     </style>
 </head>
 
-<body class="dashboard-body">
+<body class="dashboard-body {{ theme }}-theme">
     <!-- Pop-up Toast Notifications Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -522,7 +522,7 @@
                     {% if tickets %}
                     {% for ticket in tickets %}
                     <tr>
-                        <td><span class="badge badge-id">{{ ticket.id }}</span></td>
+                        <td><a href="/ticket/{{ ticket.id }}" class="badge badge-id" style="text-decoration: none;">{{ ticket.id }}</a></td>
                         <td>
                             <div class="summary-text">{{ ticket.summary }}</div>
                         </td>

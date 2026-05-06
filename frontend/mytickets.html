@@ -29,7 +29,7 @@
     </style>
 </head>
 
-<body class="dashboard-body">
+<body class="dashboard-body {{ theme }}-theme">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
@@ -38,11 +38,11 @@
         </div>
         <nav>
             <ul class="nav-links">
-                <a href="/dashboard" class="nav-link">Dashboard</a>
                 <a href="/dashboard" class="nav-link">Open New Ticket</a>
                 <a href="/viewmytickets" class="nav-link active">My Tickets</a>
-                <a href="#" class="nav-link">Knowledge base</a>
+                <a href="/knowledge-base" class="nav-link">Knowledge Base</a>
                 <a href="/support" class="nav-link">Support</a>
+                <a href="/settings" class="nav-link">Settings</a>
                 <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
             </ul>
         </nav>
@@ -81,7 +81,7 @@
                     <tbody>
                         {% for ticket in tickets %}
                         <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='#fcfdff'" onmouseout="this.style.background='white'">
-                            <td style="padding: 1.25rem 1.5rem;"><span class="badge badge-id" style="background: #eef2ff; color: #4f46e5; padding: 0.4rem 0.8rem; border-radius: 2rem; font-weight: 600; font-size: 0.85rem;">{{ ticket.id }}</span></td>
+                            <td style="padding: 1.25rem 1.5rem;"><a href="/ticket/{{ ticket.id }}" class="badge badge-id" style="background: #eef2ff; color: #4f46e5; padding: 0.4rem 0.8rem; border-radius: 2rem; font-weight: 600; font-size: 0.85rem; text-decoration: none;">{{ ticket.id }}</a></td>
                             <td style="padding: 1.25rem 1.5rem; font-weight: 500;">{{ ticket.topic }}</td>
                             <td style="padding: 1.25rem 1.5rem; max-width: 300px;">
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">{{ ticket.summary }}</div>
@@ -113,3 +113,4 @@
 </body>
 
 </html>
+

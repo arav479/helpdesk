@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Tickets | SSN Helpdesk</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body class="dashboard-body {{ theme }}-theme">
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-box"></div>SSN Helpdesk</div>
+        <nav>
+            <ul class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/admin/active-tickets" class="nav-link active">Active Tickets</a>
+                <a href="/admin/resolved-tickets" class="nav-link">Resolved Tickets</a>
+                <a href="/admin/users" class="nav-link">User Management</a>
+                <a href="/admin/settings" class="nav-link">Settings</a>
+                <a href="/support" class="nav-link">Support</a>
+                <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Active Tickets</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">Open tickets that still need attention.</p>
+            </div>
+            <div class="admin-profile"><div style="font-weight: 600;">{{ Email }}</div><div class="avatar">AU</div></div>
+        </header>
+
+        <div class="tickets-container">
+            <div class="table-header"><h2>Open Tickets</h2><span>{{ tickets|length }} active</span></div>
+            <table>
+                <thead><tr><th>Ticket ID</th><th>Help Topic</th><th>Summary</th><th>Location</th><th>Engineer</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td><a href="/ticket/{{ ticket.id }}" class="badge badge-id" style="text-decoration: none;">{{ ticket.id }}</a></td>
+                        <td class="topic-cell">{{ ticket.topic }}</td>
+                        <td><div class="summary-text">{{ ticket.summary }}</div></td>
+                        <td>{{ ticket.location }}</td>
+                        <td>{{ ticket.engineer }}</td>
+                        <td><span class="badge badge-pending">{{ ticket.status }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No active tickets.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+
+</html>

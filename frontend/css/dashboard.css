@@ -25,6 +25,16 @@ body.dashboard-body {
     min-height: 100vh;
 }
 
+body.dashboard-body.dark-theme {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #cbd5e1;
+    --border: #334155;
+    --primary: #818cf8;
+    --primary-hover: #6366f1;
+}
+
 /* Sidebar */
 .sidebar {
     width: var(--sidebar-width);
@@ -179,6 +189,10 @@ th {
     letter-spacing: 0.05em;
 }
 
+.dark-theme th {
+    background: #111827;
+}
+
 td {
     padding: 16px 24px;
     border-bottom: 1px solid var(--border);
@@ -192,6 +206,10 @@ tr:last-child td {
 
 tr:hover {
     background-color: #F8FAFC;
+}
+
+.dark-theme tr:hover {
+    background-color: #273449;
 }
 
 .badge {
@@ -254,6 +272,10 @@ tr:hover {
     border-color: var(--text-muted);
 }
 
+.dark-theme .btn-outline:hover {
+    background: #334155;
+}
+
 /* Forms */
 .form-card {
     background: var(--bg-card);
@@ -283,6 +305,13 @@ tr:hover {
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
     background: #FAFAFA;
+    color: var(--text-main);
+}
+
+.dark-theme .form-group input,
+.dark-theme .form-group select,
+.dark-theme .form-group textarea {
+    background: #0f172a;
 }
 
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -290,6 +319,12 @@ tr:hover {
     border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     background: white;
+}
+
+.dark-theme .form-group input:focus,
+.dark-theme .form-group select:focus,
+.dark-theme .form-group textarea:focus {
+    background: #111827;
 }
 
 .form-group textarea {

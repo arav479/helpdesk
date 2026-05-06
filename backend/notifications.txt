@@ -34,3 +34,5 @@ Anita|new_ticket|New Ticket Assigned|Ticket AC-148 - AC-Problem: wertyuio at GH-
 Anita|info|Login Successful|Welcome back, Anita! You are now logged in.|2026-05-06 18:28|1
 Anita|completed|Ticket Completed|You successfully resolved ticket AC-131. Great work!|2026-05-06 18:28|1
 Ravi|info|Ticket Closed by Admin|Ticket AC-119 has been closed. You have been reassigned.|2026-05-06 19:08|0
+Nithin|new_ticket|New Ticket Assigned|Ticket PL-149 - Plumbing: unpleasent smell from the washroom at GH-5|2026-05-06 19:27|0
+Ravi|info|Ticket Closed by Admin|Ticket AC-119 has been closed. You have been reassigned.|2026-05-06 19:32|0

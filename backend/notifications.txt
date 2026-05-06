@@ -36,3 +36,10 @@ Anita|completed|Ticket Completed|You successfully resolved ticket AC-131. Great 
 Ravi|info|Ticket Closed by Admin|Ticket AC-119 has been closed. You have been reassigned.|2026-05-06 19:08|0
 Nithin|new_ticket|New Ticket Assigned|Ticket PL-149 - Plumbing: unpleasent smell from the washroom at GH-5|2026-05-06 19:27|0
 Ravi|info|Ticket Closed by Admin|Ticket AC-119 has been closed. You have been reassigned.|2026-05-06 19:32|0
+John|info|Ticket Closed by Admin|Ticket EL-120 has been closed. You have been reassigned.|2026-05-06 21:25|0
+Sam|info|Ticket Closed by Admin|Ticket PL-121 has been closed. You have been reassigned.|2026-05-06 21:25|0
+Rahul|info|Ticket Closed by Admin|Ticket NW-122 has been closed. You have been reassigned.|2026-05-06 21:26|0
+Anand|info|Ticket Closed by Admin|Ticket AT-123 has been closed. You have been reassigned.|2026-05-06 21:26|0
+Ramesh|info|Ticket Closed by Admin|Ticket IT-124 has been closed. You have been reassigned.|2026-05-06 23:14|0
+Suresh|info|Ticket Closed by Admin|Ticket AC-125 has been closed. You have been reassigned.|2026-05-06 23:17|0
+Doe|info|Ticket Closed by Admin|Ticket EL-126 has been closed. You have been reassigned.|2026-05-06 23:31|0

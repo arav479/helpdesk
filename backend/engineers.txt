@@ -1,9 +1,4 @@
-Plumbing|111|Nithin|nithin@gmail.com|nithin123|1
-Plumbing|112|Geetha|geetha@gmail.com|geetha123|1
-Plumbing|113|Arun|arun@gmail.com|arun123|1
-Plumbing|114|Sam|sam@gmail.com|sam123|1
-Plumbing|115|Rita|rita@gmail.com|rita123|1
-AC-Problem|101|Ravi|ravi@gmail.com|ravi123|1
+AC-Problem|101|Ravi|ravi@gmail.com|ravi123|0
 AC-Problem|102|Suresh|suresh@gmail.com|suresh123|0
 AC-Problem|103|Anita|anita@gmail.com|anita123|1
 AC-Problem|104|Vikram|vikram@gmail.com|vikram123|1
@@ -13,6 +8,11 @@ Academic ERP & LMS Related|162|Manisha|manisha@gmail.com|manisha123|1
 Academic ERP & LMS Related|163|Vikram|vikram2@gmail.com|vikram123|1
 Academic ERP & LMS Related|164|Deepa|deepa@gmail.com|deepa123|1
 Academic ERP & LMS Related|165|Kiran|kiran2@gmail.com|kiran123|1
+Plumbing|111|Nithin|nithin@gmail.com|nithin123|1
+Plumbing|112|Geetha|geetha@gmail.com|geetha123|1
+Plumbing|113|Arun|arun@gmail.com|arun123|1
+Plumbing|114|Sam|sam@gmail.com|sam123|1
+Plumbing|115|Rita|rita@gmail.com|rita123|1
 Electrical|106|Priya|priya@gmail.com|priya123|1
 Electrical|107|Manish|manish@gmail.com|manish123|1
 Electrical|108|Sanjay|sanjay@gmail.com|sanjay123|1

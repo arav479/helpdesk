@@ -19,7 +19,8 @@
         }
 
         .toast {
-            background: white;
+            background: var(--bg-card);
+            color: var(--text-main);
             padding: 1rem 1.5rem;
             border-radius: 0.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -82,7 +83,8 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--bg-card);
+            color: var(--text-main);
             padding: 2rem;
             border-radius: 1rem;
             max-width: 400px;
@@ -151,11 +153,16 @@
         </div>
         <nav>
             <ul class="nav-links">
-                <a href="/dashboard" class="nav-link {{ 'active' if current_page == 'dashboard' else '' }}">Dashboard</a>
-                <a href="/admin/active-tickets" class="nav-link {{ 'active' if current_page == 'active' else '' }}">Active Tickets</a>
-                <a href="/admin/resolved-tickets" class="nav-link {{ 'active' if current_page == 'resolved' else '' }}">Resolved Tickets</a>
-                <a href="/admin/users" class="nav-link {{ 'active' if current_page == 'users' else '' }}">User Management</a>
-                <a href="/admin/settings" class="nav-link {{ 'active' if current_page == 'settings' else '' }}">Settings</a>
+                <a href="/dashboard"
+                    class="nav-link {{ 'active' if current_page == 'dashboard' else '' }}">Dashboard</a>
+                <a href="/admin/active-tickets"
+                    class="nav-link {{ 'active' if current_page == 'active' else '' }}">Active Tickets</a>
+                <a href="/admin/resolved-tickets"
+                    class="nav-link {{ 'active' if current_page == 'resolved' else '' }}">Resolved Tickets</a>
+                <a href="/admin/users" class="nav-link {{ 'active' if current_page == 'users' else '' }}">User
+                    Management</a>
+                <a href="/admin/settings"
+                    class="nav-link {{ 'active' if current_page == 'settings' else '' }}">Settings</a>
                 <a href="/support" class="nav-link">Support</a>
                 <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
             </ul>
@@ -186,16 +193,15 @@
             </div>
             <div class="stat-card">
                 <div class="label">Pending (Open)</div>
-                <div class="value" style="color: #f97316;">{{ tickets|selectattr('status', 'equalto', 'Open')|list|length }}</div>
+                <div class="value" style="color: #f97316;">{{ tickets|selectattr('status', 'equalto',
+                    'Open')|list|length }}</div>
             </div>
             <div class="stat-card">
                 <div class="label">Completed</div>
-                <div class="value" style="color: var(--accent);">{{ tickets|selectattr('status', 'equalto', 'Completed')|list|length }}</div>
+                <div class="value" style="color: var(--accent);">{{ tickets|selectattr('status', 'equalto',
+                    'Completed')|list|length }}</div>
             </div>
-            <div class="stat-card">
-                <div class="label">Response Rating</div>
-                <div class="value">N/A</div>
-            </div>
+
         </div>
 
         <!-- Tickets Table Section -->
@@ -203,13 +209,13 @@
             <div class="table-header"
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>Incoming Tickets</h2>
-                <form action="/search" method="GET" style="display: flex; gap: 1rem; margin: 0;">
-                    <input type="text" name="q" id="ticketSearch" placeholder="Search tickets (ID, Topic, Engineer)..."
-                        style="padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; outline: none; font-family: inherit; width: 300px;"
-                        value="{{ request.args.get('q', '') }}">
-                    <button type="submit" class="btn-primary">Search</button>
+                <form action="/search" method="GET" style="display: flex; align-items: center;">
+                    <input type="text" name="search_by_topic" id="searchByTopic"
+                        style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 0.5rem; outline: none; font-family: inherit; width: 300px; background: var(--bg-card); color: var(--text-main);">
+                    <button type="submit" class="btn-primary" style="margin: 4px;">Search by Topic</button>
+
                     <a href="/dashboard" class="btn-primary"
-                        style="text-decoration: none; display: flex; align-items: center;">Clear</a>
+                        style="text-decoration: none; display: flex; align-items: center;margin: 4px;">Clear</a>
                     <a href="/export-tickets" class="btn-primary"
                         style="text-decoration: none; display: flex; align-items: center;">Export Excel</a>
                 </form>
@@ -236,7 +242,8 @@
                     {% if tickets %}
                     {% for ticket in tickets %}
                     <tr>
-                        <td><a href="/ticket/{{ ticket.id }}" class="badge badge-id" style="text-decoration: none;">{{ ticket.id }}</a></td>
+                        <td><a href="/ticket/{{ ticket.id }}" class="badge badge-id" style="text-decoration: none;">{{
+                                ticket.id }}</a></td>
                         <td class="topic-cell">{{ ticket.topic }}</td>
                         <td>
                             <div class="summary-text">{{ ticket.summary }}</div>
@@ -270,13 +277,16 @@
                                 <div id="confirm-{{ ticket.id }}" class="modal-overlay">
                                     <div class="modal-content">
                                         <h3 style="margin-bottom: 1rem;">Confirm Closure</h3>
-                                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Are you sure you want to
-                                            close ticket <strong>{{ ticket.id }}</strong>? This will reassign the engineer.
+                                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Are you sure you want
+                                            to
+                                            close ticket <strong>{{ ticket.id }}</strong>? This will reassign the
+                                            engineer.
                                         </p>
                                         <div style="display: flex; gap: 1rem; justify-content: center;">
                                             <form action="/delete" method="POST">
                                                 <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
-                                                <button type="submit" class="btn-primary" style="background: #ef4444;">Yes,
+                                                <button type="submit" class="btn-primary"
+                                                    style="background: #ef4444;">Yes,
                                                     Close it</button>
                                             </form>
                                             <a href="#" class="btn-outline"
@@ -301,7 +311,7 @@
 
     <script>
         // Show notification alert when page loads with flash messages
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% with messages = get_flashed_messages(with_categories = true) %}
         {% if messages %}
         {% for category, message in messages %}
         {% if category == 'success' %}
@@ -314,4 +324,3 @@
 </body>
 
 </html>
-

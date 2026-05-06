@@ -181,6 +181,7 @@ struct ticket_details* extract_file_data_to_nodes() {
     char line[1024];
     while (fgets(line, sizeof(line), fp)) {
         if (strlen(line) <= 1) continue;
+        if (strncmp(line, "<<<<<<<", 7) == 0 || strncmp(line, "=======", 7) == 0 || strncmp(line, ">>>>>>>", 7) == 0) continue;
         struct ticket_details *new_node = (struct ticket_details *)malloc(sizeof(struct ticket_details));
         new_node->next = NULL;
         strcpy(new_node->status, "Open");  /* default */
@@ -207,6 +208,26 @@ struct ticket_details* extract_file_data_to_nodes() {
     return head;
 }
 
+int contains_ignore_case(const char *text, const char *query) {
+    char lower_text[600];
+    char lower_query[200];
+    int i;
+
+    if (text == NULL || query == NULL) return 0;
+
+    for (i = 0; text[i] != '\0' && i < 599; i++) {
+        lower_text[i] = (char)tolower((unsigned char)text[i]);
+    }
+    lower_text[i] = '\0';
+
+    for (i = 0; query[i] != '\0' && i < 199; i++) {
+        lower_query[i] = (char)tolower((unsigned char)query[i]);
+    }
+    lower_query[i] = '\0';
+
+    return strstr(lower_text, lower_query) != NULL;
+}
+
 /* Print all tickets in parsable format (11 fields) */
 void list_tickets_parsable(struct ticket_details *head) {
     struct ticket_details *temp = head;
@@ -219,6 +240,94 @@ void list_tickets_parsable(struct ticket_details *head) {
         temp = temp->next;
     }
 }
+
+void search_tickets_parsable(struct ticket_details *head, char *query) {
+    struct ticket_details *temp = head;
+    while (temp != NULL) {
+        if (contains_ignore_case(temp->username, query) ||
+            contains_ignore_case(temp->ticket_id, query) ||
+            contains_ignore_case(temp->helptopic, query) ||
+            contains_ignore_case(temp->issue_summary, query) ||
+            contains_ignore_case(temp->problem_explanation, query) ||
+            contains_ignore_case(temp->location, query) ||
+            contains_ignore_case(temp->Department_Hostel, query) ||
+            contains_ignore_case(temp->mobilelenumber, query) ||
+            contains_ignore_case(temp->preferred_time, query) ||
+            contains_ignore_case(temp->assigned_engineer, query) ||
+            contains_ignore_case(temp->status, query)) {
+            printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n", temp->username,
+                   temp->ticket_id, temp->helptopic, temp->issue_summary,
+                   temp->problem_explanation, temp->location,
+                   temp->Department_Hostel, temp->mobilelenumber, temp->preferred_time,
+                   temp->assigned_engineer, temp->status);
+        }
+        temp = temp->next;
+    }
+}
+
+/* ======================================================
+   LINKED LIST MERGE SORT FOR TICKETS
+   ====================================================== */
+void frontBackSplit(struct ticket_details* source,
+                    struct ticket_details** frontRef, struct ticket_details** backRef) {
+    struct ticket_details* fast;
+    struct ticket_details* slow;
+    slow = source;
+    fast = source->next;
+    while (fast != NULL) {
+        fast = fast->next;
+        if (fast != NULL) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = NULL;
+}
+
+struct ticket_details* sortedMerge(struct ticket_details* a, struct ticket_details* b, const char* sort_by) {
+    struct ticket_details* result = NULL;
+    if (a == NULL) return b;
+    else if (b == NULL) return a;
+
+    int cmp = 0;
+    if (strcmp(sort_by, "id") == 0) {
+        cmp = strcmp(a->ticket_id, b->ticket_id);
+    } else if (strcmp(sort_by, "department") == 0) {
+        cmp = strcmp(a->Department_Hostel, b->Department_Hostel);
+    } else if (strcmp(sort_by, "status") == 0) {
+        cmp = strcmp(a->status, b->status);
+    } else if (strcmp(sort_by, "engineer") == 0) {
+        cmp = strcmp(a->assigned_engineer, b->assigned_engineer);
+    } else {
+        cmp = strcmp(a->ticket_id, b->ticket_id);
+    }
+
+    if (cmp <= 0) {
+        result = a;
+        result->next = sortedMerge(a->next, b, sort_by);
+    } else {
+        result = b;
+        result->next = sortedMerge(a, b->next, sort_by);
+    }
+    return result;
+}
+
+void mergeSort(struct ticket_details** headRef, const char* sort_by) {
+    struct ticket_details* head = *headRef;
+    struct ticket_details* a;
+    struct ticket_details* b;
+
+    if ((head == NULL) || (head->next == NULL)) return;
+
+    frontBackSplit(head, &a, &b);
+    mergeSort(&a, sort_by);
+    mergeSort(&b, sort_by);
+
+    *headRef = sortedMerge(a, b, sort_by);
+}
+
 
 /* ======================================================
    AVAILABILITY-BASED ENGINEER ASSIGNMENT
@@ -473,6 +582,17 @@ int main(int argc, char *argv[]) {
     }
     if (argc == 2 && strcmp(argv[1], "list") == 0) {
         struct ticket_details *top = extract_file_data_to_nodes();
+        list_tickets_parsable(top);
+        return 0;
+    }
+    if (argc == 3 && strcmp(argv[1], "search") == 0) {
+        struct ticket_details *top = extract_file_data_to_nodes();
+        search_tickets_parsable(top, argv[2]);
+        return 0;
+    }
+    if (argc == 3 && strcmp(argv[1], "sort") == 0) {
+        struct ticket_details *top = extract_file_data_to_nodes();
+        mergeSort(&top, argv[2]);
         list_tickets_parsable(top);
         return 0;
     }

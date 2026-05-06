@@ -245,16 +245,19 @@ def fetch_user_tickets():
     
     return tickets
 
-def fetch_tickets(query=None):
+def fetch_tickets(query=None, sort_by=None):
     tickets = []
-    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ticket_update.exe")
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    exe_path = os.path.join(backend_dir, "ticket_update.exe")
     
     try:
         # Attempt to get tickets using C executable
         if query:
-            result = subprocess.run([exe_path, "search", query], capture_output=True, text=True)
+            result = subprocess.run([exe_path, "search", query], cwd=backend_dir, capture_output=True, text=True)
+        elif sort_by:
+            result = subprocess.run([exe_path, "sort", sort_by], cwd=backend_dir, capture_output=True, text=True)
         else:
-            result = subprocess.run([exe_path, "list"], capture_output=True, text=True)
+            result = subprocess.run([exe_path, "list"], cwd=backend_dir, capture_output=True, text=True)
             
         if result.returncode == 0:
             lines = result.stdout.strip().split("\n")
@@ -275,7 +278,7 @@ def fetch_tickets(query=None):
                         "status": parts[10].strip() if len(parts) > 10 else "Open"
                     })
         else:
-            f=open("ticket_credentials.txt",'r')
+            f=open(os.path.join(backend_dir, "ticket_credentials.txt"),'r')
             line = f.readline()
             while line:
                 parts = line.split("|")
@@ -366,9 +369,16 @@ def dashboard():
 
 @app.route('/search')
 def search():
-    query = request.args.get('q')
+    query = request.args.get('search_by_topic')
     email = session.get('email')
-    tickets = fetch_tickets(query)
+    tickets = fetch_tickets(query=query)
+    return render_template("admin_dashboard.html", tickets=tickets, Email=email, current_page='dashboard')
+
+@app.route('/sort')
+def sort():
+    sort_by = request.args.get('sort_by', 'id')
+    email = session.get('email')
+    tickets = fetch_tickets(sort_by=sort_by)
     return render_template("admin_dashboard.html", tickets=tickets, Email=email, current_page='dashboard')
 
 @app.route('/ticket/<ticket_id>')

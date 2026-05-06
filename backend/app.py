@@ -73,7 +73,7 @@ def open_dashboard_for_role(role, email):
     session['role'] = role
 
     if role == 'admin':
-        return render_template("admin_dashboard.html", tickets=fetch_tickets(), Email=email)
+        return render_template("admin_dashboard.html", tickets=fetch_tickets(), Email=email, current_page='dashboard')
 
     return render_template("user_dashboard.html", tickets=fetch_user_tickets(), Email=email)
 
@@ -328,6 +328,20 @@ def fetch_engineer_tickets(engineer_name):
         print(f"Error fetching engineer tickets: {e}")
     return tickets
 
+def build_role_counts(users):
+    counts = {'user': 0, 'admin': 0, 'engineer': 0}
+    for user in users:
+        role = user.get('role', '').lower()
+        if role in counts:
+            counts[role] += 1
+    return counts
+
+def require_role(role_name):
+    if session.get('role') != 'admin' and role_name == 'admin':
+        return redirect(url_for('home'))
+    if session.get('role') != role_name:
+        return redirect(url_for('home'))
+    return None
 @app.route('/dashboard')
 def dashboard():
     role = session.get('role')
@@ -335,7 +349,7 @@ def dashboard():
     
     if role == 'admin':
         tickets = fetch_tickets()
-        return render_template("admin_dashboard.html", tickets=tickets, Email=email)
+        return render_template("admin_dashboard.html", tickets=tickets, Email=email, current_page='dashboard')
     elif role == 'engineer':
         engineer_name = session.get('engineer_name')
         tickets = fetch_engineer_tickets(engineer_name)
@@ -351,7 +365,7 @@ def search():
     query = request.args.get('q')
     email = session.get('email')
     tickets = fetch_tickets(query)
-    return render_template("admin_dashboard.html", tickets=tickets, Email=email)
+    return render_template("admin_dashboard.html", tickets=tickets, Email=email, current_page='dashboard')
 
 @app.route('/ticket/<ticket_id>')
 def ticket_details(ticket_id):
@@ -385,7 +399,9 @@ def ticket_details(ticket_id):
         "status": parts[10].strip() if len(parts) > 10 else "Open"
     }
 
-    return render_template("ticket_details.html", ticket=ticket, Email=session.get('email'))
+    role = session.get('role')
+    dashboard_route = url_for('engineer_dashboard') if role == 'engineer' else url_for('dashboard')
+    return render_template("ticket_details.html", ticket=ticket, Email=session.get('email'), role=role, dashboard_route=dashboard_route)
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -523,7 +539,7 @@ def assign_all_unassigned():
     print("Assigned all unassigned tickets")
     print(result.stdout)
     tickets=fetch_tickets()
-    return render_template("admin_dashboard.html", tickets=tickets, Email=session['email'])
+    return render_template("admin_dashboard.html", tickets=tickets, Email=session['email'], current_page='dashboard')
 
 @app.route('/undo', methods=['POST'])
 def undo_delete():
@@ -539,6 +555,8 @@ def undo_delete():
 
 @app.route('/viewmytickets', methods=['GET', 'POST'])
 def view_my_tickets():
+    if session.get('role') != 'user':
+        return redirect(url_for('dashboard'))
     tickets=fetch_user_tickets()
     return render_template("mytickets.html", tickets=tickets, Email=session.get('email'))
 
@@ -552,8 +570,50 @@ def engineer_dashboard():
 
 @app.route('/support')
 def support_page():
-    return render_template('support.html')
+    role = session.get('role')
+    if not role:
+        return redirect(url_for('home'))
+    return render_template('support.html', role=role, email=session.get('email'), engineer_name=session.get('engineer_name'))
 
+@app.route('/knowledge-base')
+def knowledge_base():
+    role = session.get('role')
+    if not role:
+        return redirect(url_for('home'))
+    return render_template('knowledge_base.html', role=role, email=session.get('email'), engineer_name=session.get('engineer_name'))
+
+@app.route('/admin/active-tickets')
+def admin_active_tickets():
+    blocked = require_role('admin')
+    if blocked:
+        return blocked
+    tickets = [ticket for ticket in fetch_tickets() if ticket.get('status') != 'Completed']
+    return render_template('active_tickets.html', tickets=tickets, Email=session.get('email'), current_page='active')
+
+@app.route('/admin/resolved-tickets')
+def admin_resolved_tickets():
+    blocked = require_role('admin')
+    if blocked:
+        return blocked
+    tickets = [ticket for ticket in fetch_tickets() if ticket.get('status') == 'Completed']
+    return render_template('resolved_tickets.html', tickets=tickets, Email=session.get('email'), current_page='resolved')
+
+@app.route('/admin/users')
+def admin_user_management():
+    blocked = require_role('admin')
+    if blocked:
+        return blocked
+    users = read_users()
+    return render_template('user_management.html', users=users, role_counts=build_role_counts(users), Email=session.get('email'), current_page='users')
+
+@app.route('/admin/settings')
+def admin_settings():
+    blocked = require_role('admin')
+    if blocked:
+        return blocked
+    tickets = fetch_tickets()
+    open_tickets = len([ticket for ticket in tickets if ticket.get('status') != 'Completed'])
+    return render_template('admin_settings.html', Email=session.get('email'), current_page='settings', user_count=len(read_users()), open_tickets=open_tickets, completed_tickets=len(tickets) - open_tickets, notification_file=os.path.basename(NOTIFICATIONS_FILE))
 @app.route('/logout')
 def logout():
     session.pop('email', None)
@@ -591,3 +651,7 @@ def api_clear_notifications():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+

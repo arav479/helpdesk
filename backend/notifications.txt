@@ -30,3 +30,7 @@ Suresh|new_ticket|New Ticket Assigned|Ticket AC-146 - AC-Problem: AC not working
 Rahul|new_ticket|New Ticket Assigned|Ticket OT-147 - Academic ERP & LMS Related: password at ssn|2026-05-06 14:17|0
 Rahul|info|Login Successful|Welcome back, Rahul! You are now logged in.|2026-05-06 14:19|0
 Rahul|completed|Ticket Completed|You successfully resolved ticket OT-147. Great work!|2026-05-06 14:19|0
+Anita|new_ticket|New Ticket Assigned|Ticket AC-148 - AC-Problem: wertyuio at GH-5|2026-05-06 18:25|1
+Anita|info|Login Successful|Welcome back, Anita! You are now logged in.|2026-05-06 18:28|1
+Anita|completed|Ticket Completed|You successfully resolved ticket AC-131. Great work!|2026-05-06 18:28|1
+Ravi|info|Ticket Closed by Admin|Ticket AC-119 has been closed. You have been reassigned.|2026-05-06 19:08|0

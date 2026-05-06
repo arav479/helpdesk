@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Dashboard | SSN Helpdesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* ===== Pop-up Toast Notifications ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            pointer-events: all;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.04);
+            border-left: 5px solid var(--primary);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-weight: 500;
+            max-width: 400px;
+            animation: toastSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--primary);
+            animation: toastProgress 5s linear forwards;
+        }
+
+        .toast.success { border-left-color: #22c55e; }
+        .toast.success::after { background: #22c55e; }
+        .toast.info { border-left-color: #3b82f6; }
+        .toast.info::after { background: #3b82f6; }
+        .toast.new_ticket { border-left-color: #f59e0b; }
+        .toast.new_ticket::after { background: #f59e0b; }
+        .toast.completed { border-left-color: #10b981; }
+        .toast.completed::after { background: #10b981; }
+
+        .toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .toast.success .toast-icon, .toast.completed .toast-icon { background: #ecfdf5; }
+        .toast.info .toast-icon { background: #eff6ff; }
+        .toast.new_ticket .toast-icon { background: #fffbeb; }
+
+        .toast-body { flex: 1; }
+        .toast-title { font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-bottom: 2px; }
+        .toast-message { font-weight: 400; font-size: 0.8rem; color: #64748b; line-height: 1.4; }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px;
+            line-height: 1;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .toast-close:hover { background: #f1f5f9; color: #475569; }
+
+        .toast.removing {
+            animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastSlideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* ===== Notification Bell & Dropdown Panel ===== */
+        .notif-bell-wrapper {
+            position: relative;
+            margin-right: 16px;
+        }
+
+        .notif-bell-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            padding: 8px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notif-bell-btn:hover {
+            background: #f1f5f9;
+        }
+        .notif-bell-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #475569;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .notif-bell-btn:hover svg { stroke: var(--primary); }
+
+        .notif-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        .notif-badge.hidden { display: none; }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Bell ring animation */
+        .notif-bell-btn.ringing svg {
+            animation: bellRing 0.8s ease-in-out;
+        }
+        @keyframes bellRing {
+            0% { transform: rotate(0); }
+            15% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            45% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0); }
+        }
+
+        /* ===== Notification Dropdown Panel ===== */
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: -60px;
+            width: 400px;
+            max-height: 520px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            display: none;
+            flex-direction: column;
+            z-index: 5000;
+            overflow: hidden;
+            animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .notif-dropdown.open { display: flex; }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .notif-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .notif-dropdown-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notif-dropdown-header h3 .unread-pill {
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .notif-header-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .notif-header-actions button {
+            background: none;
+            border: 1px solid #e2e8f0;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .notif-header-actions button:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        .notif-dropdown-body {
+            overflow-y: auto;
+            max-height: 420px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        .notif-dropdown-body::-webkit-scrollbar { width: 5px; }
+        .notif-dropdown-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .notif-item {
+            display: flex;
+            gap: 14px;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.15s;
+            cursor: default;
+            position: relative;
+        }
+        .notif-item:hover { background: #fafbfe; }
+        .notif-item.unread { background: #f8faff; }
+        .notif-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .notif-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .notif-item-icon.new_ticket { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        .notif-item-icon.completed { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+        .notif-item-icon.info { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+
+        .notif-item-content { flex: 1; min-width: 0; }
+        .notif-item-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+        .notif-item-message {
+            font-size: 0.78rem;
+            color: #64748b;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .notif-item-time {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .notif-empty {
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+        .notif-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .notif-empty-text { font-size: 0.85rem; font-weight: 500; }
+        .notif-empty-subtext { font-size: 0.75rem; margin-top: 4px; }
+
+        /* ===== Status badges ===== */
+        .badge-open {
+            background: #FFF7ED;
+            color: #f97316;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-completed {
+            background: #ECFDF5;
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .btn-done {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-done:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            color: white;
+            padding: 2rem 2.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .welcome-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-card p {
+            opacity: 0.85;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Notification backdrop overlay */
+        .notif-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4999;
+            display: none;
+        }
+        .notif-backdrop.active { display: block; }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <!-- Pop-up Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Backdrop for closing notification dropdown -->
+    <div class="notif-backdrop" id="notifBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-box"></div>
+            SSN Helpdesk
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <a href="/engineer_dashboard" class="nav-link active">My Work</a>
+                <a href="/support" class="nav-link">Support</a>
+                <a href="/logout" class="nav-link" style="color: #ef4444; margin-top: auto;">Logout</a>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Engineer Dashboard</h1>
+                <p style="color: var(--text-muted); margin-top: 4px;">View and manage your assigned tickets</p>
+            </div>
+            <div class="admin-profile">
+                <!-- Notification Bell -->
+                <div class="notif-bell-wrapper">
+                    <button class="notif-bell-btn" id="notifBellBtn" title="Notifications">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notif-badge hidden" id="notifBadge">0</span>
+                    </button>
+
+                    <!-- Notification Dropdown Panel -->
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-dropdown-header">
+                            <h3>
+                                Notifications
+                                <span class="unread-pill" id="unreadPill">0 new</span>
+                            </h3>
+                            <div class="notif-header-actions">
+                                <button id="markAllReadBtn" title="Mark all as read">✓ Read All</button>
+                                <button id="clearAllBtn" title="Clear all notifications">Clear All</button>
+                            </div>
+                        </div>
+                        <div class="notif-dropdown-body" id="notifList">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{ EngineerName }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Support Engineer</div>
+                </div>
+                <div class="avatar">EN</div>
+            </div>
+        </header>
+
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <h2>Welcome, {{ EngineerName }}! 👋</h2>
+            <p>You have {{ tickets|selectattr('status', 'equalto', 'Open')|list|length }} open ticket(s) assigned to you.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Assigned</div>
+                <div class="value">{{ tickets|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Open Tickets</div>
+                <div class="value" style="color: #f97316;">{{ tickets|selectattr('status', 'equalto', 'Open')|list|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Completed</div>
+                <div class="value" style="color: var(--accent);">{{ tickets|selectattr('status', 'equalto', 'Completed')|list|length }}</div>
+            </div>
+        </div>
+
+        <!-- Assigned Tickets Table -->
+        <div class="tickets-container">
+            <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Assigned Tickets</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Issue</th>
+                        <th>Help Topic</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if tickets %}
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td><span class="badge badge-id">{{ ticket.id }}</span></td>
+                        <td>
+                            <div class="summary-text">{{ ticket.summary }}</div>
+                        </td>
+                        <td class="topic-cell">{{ ticket.topic }}</td>
+                        <td>{{ ticket.location }}</td>
+                        <td>
+                            {% if ticket.status == 'Completed' %}
+                            <span class="badge-completed">✅ Completed</span>
+                            {% else %}
+                            <span class="badge-open">🔸 Open</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.status != 'Completed' %}
+                            <form action="/mark_done" method="POST" style="display: inline;">
+                                <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                <button type="submit" class="btn-done" onclick="return confirm('Mark ticket {{ ticket.id }} as completed?')">
+                                    ✅ Mark Done
+                                </button>
+                            </form>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Done</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            🎉 No tickets assigned to you. You're all caught up!
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // ============================
+        //  NOTIFICATION SYSTEM
+        // ============================
+
+        const bellBtn = document.getElementById('notifBellBtn');
+        const dropdown = document.getElementById('notifDropdown');
+        const backdrop = document.getElementById('notifBackdrop');
+        const badge = document.getElementById('notifBadge');
+        const unreadPill = document.getElementById('unreadPill');
+        const notifList = document.getElementById('notifList');
+        const toastContainer = document.getElementById('toastContainer');
+
+        let lastKnownCount = 0;
+        let isFirstLoad = true;
+
+        // ---- Toggle dropdown ----
+        bellBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            if (isOpen) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+        });
+
+        backdrop.addEventListener('click', closeDropdown);
+
+        function openDropdown() {
+            dropdown.classList.add('open');
+            backdrop.classList.add('active');
+            fetchNotifications();
+            // Mark as read when opening
+            fetch('/api/notifications/read', { method: 'POST' })
+                .then(() => {
+                    badge.classList.add('hidden');
+                    badge.textContent = '0';
+                    unreadPill.textContent = '0 new';
+                });
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            backdrop.classList.remove('active');
+        }
+
+        // ---- Mark All Read ----
+        document.getElementById('markAllReadBtn').addEventListener('click', function() {
+            fetch('/api/notifications/read', { method: 'POST' })
+                .then(() => fetchNotifications());
+        });
+
+        // ---- Clear All ----
+        document.getElementById('clearAllBtn').addEventListener('click', function() {
+            fetch('/api/notifications/clear', { method: 'POST' })
+                .then(() => fetchNotifications());
+        });
+
+        // ---- Fetch & render notifications ----
+        function fetchNotifications() {
+            fetch('/api/notifications')
+                .then(r => r.json())
+                .then(data => {
+                    renderNotifications(data.notifications);
+                    updateBadge(data.unread_count);
+
+                    // Show pop-up toasts for NEW unread notifications
+                    if (!isFirstLoad && data.unread_count > lastKnownCount) {
+                        const newOnes = data.notifications.filter(n => !n.read);
+                        const howManyNew = data.unread_count - lastKnownCount;
+                        // Show toast for the latest new notification(s)
+                        for (let i = 0; i < Math.min(howManyNew, 3); i++) {
+                            if (newOnes[i]) {
+                                showToast(newOnes[i]);
+                                ringBell();
+                            }
+                        }
+                    }
+
+                    lastKnownCount = data.unread_count;
+                    isFirstLoad = false;
+                })
+                .catch(err => console.error('Notification fetch error:', err));
+        }
+
+        function updateBadge(count) {
+            if (count > 0 && !dropdown.classList.contains('open')) {
+                badge.classList.remove('hidden');
+                badge.textContent = count > 9 ? '9+' : count;
+                unreadPill.textContent = count + ' new';
+            } else {
+                badge.classList.add('hidden');
+                unreadPill.textContent = '0 new';
+            }
+        }
+
+        function renderNotifications(notifications) {
+            if (!notifications || notifications.length === 0) {
+                notifList.innerHTML = `
+                    <div class="notif-empty">
+                        <div class="notif-empty-icon">🔔</div>
+                        <div class="notif-empty-text">No notifications yet</div>
+                        <div class="notif-empty-subtext">You'll see updates here when tickets are assigned</div>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            notifications.forEach(n => {
+                const icon = getNotifIcon(n.type);
+                const unreadClass = n.read ? '' : 'unread';
+                html += `
+                    <div class="notif-item ${unreadClass}">
+                        <div class="notif-item-icon ${n.type}">${icon}</div>
+                        <div class="notif-item-content">
+                            <div class="notif-item-title">${escapeHtml(n.title)}</div>
+                            <div class="notif-item-message" title="${escapeHtml(n.message)}">${escapeHtml(n.message)}</div>
+                            <div class="notif-item-time">${escapeHtml(n.timestamp)}</div>
+                        </div>
+                    </div>`;
+            });
+            notifList.innerHTML = html;
+        }
+
+        function getNotifIcon(type) {
+            switch (type) {
+                case 'new_ticket': return '🎫';
+                case 'completed': return '✅';
+                case 'info': return 'ℹ️';
+                default: return '🔔';
+            }
+        }
+
+        // ---- Pop-up Toast ----
+        function showToast(notification) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${notification.type || 'info'}`;
+
+            const icon = getNotifIcon(notification.type);
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-body">
+                    <div class="toast-title">${escapeHtml(notification.title)}</div>
+                    <div class="toast-message">${escapeHtml(notification.message)}</div>
+                </div>
+                <button class="toast-close" onclick="dismissToast(this)">&times;</button>`;
+
+            toastContainer.appendChild(toast);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.classList.add('removing');
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, 5000);
+        }
+
+        function dismissToast(btn) {
+            const toast = btn.closest('.toast');
+            toast.classList.add('removing');
+            setTimeout(() => toast.remove(), 400);
+        }
+
+        function ringBell() {
+            bellBtn.classList.add('ringing');
+            setTimeout(() => bellBtn.classList.remove('ringing'), 800);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        // ---- Show flash messages as toasts ----
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        (function() {
+            showToast({
+                type: '{{ category }}',
+                title: '{% if category == "success" %}Success{% else %}Info{% endif %}',
+                message: '{{ message }}'
+            });
+        })();
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        // ---- Poll for new notifications every 10 seconds ----
+        fetchNotifications();
+        setInterval(fetchNotifications, 10000);
+    </script>
+</body>
+
+</html>

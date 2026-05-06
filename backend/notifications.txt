@@ -1,0 +1,32 @@
+
+Rita|info|Login Successful|Welcome back, Rita! You are now logged in.|2026-05-02 11:37|0
+Rita|completed|Ticket Completed|You successfully resolved ticket PL-127. Great work!|2026-05-02 11:37|0
+Rita|completed|Ticket Completed|You successfully resolved ticket PL-127. Great work!|2026-05-02 11:38|0
+Rita|completed|Ticket Completed|You successfully resolved ticket PL-127. Great work!|2026-05-02 11:38|0
+Rahul|info|Login Successful|Welcome back, Rahul! You are now logged in.|2026-05-02 11:41|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket NW-122. Great work!|2026-05-02 11:41|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket NW-122. Great work!|2026-05-02 11:41|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket PL-121. Great work!|2026-05-02 11:43|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket AC-119. Great work!|2026-05-02 11:44|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket AT-117. Great work!|2026-05-02 11:44|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket NW-116. Great work!|2026-05-02 11:46|0
+Bob|info|Ticket Closed by Admin|Ticket NW-116 has been closed. You have been reassigned.|2026-05-02 11:46|0
+Ravi|new_ticket|New Ticket Assigned|Ticket AC-143 - AC-Problem: water leaking from AC at GH-5|2026-05-02 11:49|0
+Shreya|info|Ticket Closed by Admin|Ticket AT-117 has been closed. You have been reassigned.|2026-05-02 19:06|0
+Nithin|new_ticket|New Ticket Assigned|Ticket PL-144 - Plumbing: flush is not working at GH-5|2026-05-02 19:09|1
+Nithin|info|Ticket Closed by Admin|Ticket PL-144 has been closed. You have been reassigned.|2026-05-02 19:10|1
+Nithin|info|Login Successful|Welcome back, Nithin! You are now logged in.|2026-05-02 19:16|1
+Nithin|completed|Ticket Completed|You successfully resolved ticket Unassigned. Great work!|2026-05-02 19:17|1
+Nithin|completed|Ticket Completed|You successfully resolved ticket Unassigned. Great work!|2026-05-02 19:17|1
+Nithin|completed|Ticket Completed|You successfully resolved ticket PL-133. Great work!|2026-05-02 19:17|1
+Nithin|completed|Ticket Completed|You successfully resolved ticket PL-103. Great work!|2026-05-02 19:17|1
+Nithin|new_ticket|New Ticket Assigned|Ticket PL-145 - Plumbing: kakoos la flush panna maatingranga at Toilet,3rd floor,GH-5|2026-05-03 20:01|1
+Nithin|info|Login Successful|Welcome back, Nithin! You are now logged in.|2026-05-03 20:03|1
+Nithin|completed|Ticket Completed|You successfully resolved ticket PL-133. Great work!|2026-05-03 20:03|0
+Nithin|completed|Ticket Completed|You successfully resolved ticket EL-120. Great work!|2026-05-03 20:05|0
+Divya|info|Ticket Closed by Admin|Ticket IT-118 has been closed. You have been reassigned.|2026-05-03 20:05|0
+Bob|info|Ticket Closed by Admin|Ticket NW-116 has been closed. You have been reassigned.|2026-05-03 20:08|0
+Suresh|new_ticket|New Ticket Assigned|Ticket AC-146 - AC-Problem: AC not working at Toilet,3rd floor,GH-5|2026-05-04 09:56|0
+Rahul|new_ticket|New Ticket Assigned|Ticket OT-147 - Academic ERP & LMS Related: password at ssn|2026-05-06 14:17|0
+Rahul|info|Login Successful|Welcome back, Rahul! You are now logged in.|2026-05-06 14:19|0
+Rahul|completed|Ticket Completed|You successfully resolved ticket OT-147. Great work!|2026-05-06 14:19|0

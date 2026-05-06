@@ -21,17 +21,64 @@
             font-size: 4rem;
             margin-bottom: 1rem;
         }
+        .engineer-badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+        }
+        .warning-badge {
+            display: inline-block;
+            background: #FFF7ED;
+            color: #f97316;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+        }
+        .ticket-id-display {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body style="background-color: var(--bg-main); font-family: 'Outfit', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
     <div class="confirmation-card">
         <div class="success-icon">✅</div>
-        <h1 style="color: var(--text-main); margin-bottom: 1rem;">Ticket Created Successfully</h1>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">Your issue has been recorded and an engineer will be assigned shortly.</p>
+        <h1 style="color: var(--text-main); margin-bottom: 0.5rem;">Ticket Created Successfully</h1>
+        
+        {% if ticket_id %}
+        <div class="ticket-id-display">Ticket ID: <strong>{{ ticket_id }}</strong></div>
+        {% endif %}
+
+        {% if engineer and engineer != 'Unassigned' %}
+        <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Assigned to engineer:</p>
+        <div class="engineer-badge">🔧 {{ engineer }}</div>
+        <p style="color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 2rem;">Your issue is being looked into!</p>
+        {% else %}
+        <div class="warning-badge">⚠️ No engineer available</div>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Your ticket has been recorded. An engineer will be assigned once someone is available.</p>
+        {% endif %}
+
         <div style="display: flex; gap: 1rem; justify-content: center;">
             <a href="/viewmytickets" class="btn-primary" style="text-decoration: none;">View My Tickets</a>
             <a href="/dashboard" class="btn-outline" style="text-decoration: none;">Back to Dashboard</a>
         </div>
     </div>
+
+    <script>
+        // Web notification - alert when ticket is assigned
+        {% if engineer and engineer != 'Unassigned' %}
+        alert("🔔 New Ticket Assigned!\n\nEngineer: {{ engineer }}\nTicket ID: {{ ticket_id }}\n\nYour issue will be resolved soon!");
+        {% else %}
+        alert("⚠️ Ticket Created\n\nNo engineers currently available.\nYour ticket has been queued for assignment.");
+        {% endif %}
+    </script>
 </body>
 </html>

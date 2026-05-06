@@ -90,6 +90,42 @@
             text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
+
+        /* Status badges */
+        .badge-open {
+            background: #FFF7ED;
+            color: #f97316;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-completed {
+            background: #ECFDF5;
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .btn-done {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-done:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -148,12 +184,12 @@
                 <div class="value">{{ tickets|length }}</div>
             </div>
             <div class="stat-card">
-                <div class="label">Pending Action</div>
-                <div class="value" style="color: #f97316;">{{ tickets|length }}</div>
+                <div class="label">Pending (Open)</div>
+                <div class="value" style="color: #f97316;">{{ tickets|selectattr('status', 'equalto', 'Open')|list|length }}</div>
             </div>
             <div class="stat-card">
-                <div class="label">Resolved Today</div>
-                <div class="value" style="color: var(--accent);">0</div>
+                <div class="label">Completed</div>
+                <div class="value" style="color: var(--accent);">{{ tickets|selectattr('status', 'equalto', 'Completed')|list|length }}</div>
             </div>
             <div class="stat-card">
                 <div class="label">Response Rating</div>
@@ -161,7 +197,6 @@
             </div>
         </div>
 
-        <!-- Tickets Table Section -->
         <!-- Tickets Table Section -->
         <div class="tickets-container">
             <div class="table-header"
@@ -189,6 +224,7 @@
                         <th>Location</th>
                         <th>Department</th>
                         <th>Assigned Engineer</th>
+                        <th>Status</th>
                         <th>Actions</th>
 
                     </tr>
@@ -208,25 +244,41 @@
                         <td><strong>{{ ticket.engineer }}</strong></td>
 
                         <td>
-                            <a href="#confirm-{{ ticket.id }}" class="btn-primary"
-                                style="text-decoration: none; display: inline-block; background: #ef4444;">Close
-                                Ticket</a>
+                            {% if ticket.status == 'Completed' %}
+                            <span class="badge-completed">✅ Completed</span>
+                            {% else %}
+                            <span class="badge-open">🔸 Open</span>
+                            {% endif %}
+                        </td>
 
-                            <!-- CSS-Only Modal for Confirmation -->
-                            <div id="confirm-{{ ticket.id }}" class="modal-overlay">
-                                <div class="modal-content">
-                                    <h3 style="margin-bottom: 1rem;">Confirm Closure</h3>
-                                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Are you sure you want to
-                                        close ticket <strong>{{ ticket.id }}</strong>? This will reassign the engineer.
-                                    </p>
-                                    <div style="display: flex; gap: 1rem; justify-content: center;">
-                                        <form action="/delete" method="POST">
-                                            <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
-                                            <button type="submit" class="btn-primary" style="background: #ef4444;">Yes,
-                                                Close it</button>
-                                        </form>
-                                        <a href="#" class="btn-outline"
-                                            style="text-decoration: none; padding: 0.8rem 1.5rem; border-radius: 0.5rem;">Cancel</a>
+                        <td>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                {% if ticket.status != 'Completed' %}
+                                <form action="/mark_done" method="POST" style="margin: 0;">
+                                    <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                    <button type="submit" class="btn-done">✅ Done</button>
+                                </form>
+                                {% endif %}
+
+                                <a href="#confirm-{{ ticket.id }}" class="btn-primary"
+                                    style="text-decoration: none; display: inline-block; background: #ef4444; font-size: 0.8rem; padding: 8px 14px;">Close</a>
+
+                                <!-- CSS-Only Modal for Confirmation -->
+                                <div id="confirm-{{ ticket.id }}" class="modal-overlay">
+                                    <div class="modal-content">
+                                        <h3 style="margin-bottom: 1rem;">Confirm Closure</h3>
+                                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Are you sure you want to
+                                            close ticket <strong>{{ ticket.id }}</strong>? This will reassign the engineer.
+                                        </p>
+                                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                                            <form action="/delete" method="POST">
+                                                <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                                <button type="submit" class="btn-primary" style="background: #ef4444;">Yes,
+                                                    Close it</button>
+                                            </form>
+                                            <a href="#" class="btn-outline"
+                                                style="text-decoration: none; padding: 0.8rem 1.5rem; border-radius: 0.5rem;">Cancel</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -235,7 +287,7 @@
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">No tickets
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">No tickets
                             available.</td>
                     </tr>
                     {% endif %}
@@ -243,6 +295,19 @@
             </table>
         </div>
     </main>
+
+    <script>
+        // Show notification alert when page loads with flash messages
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% if category == 'success' %}
+        alert("✅ {{ message }}");
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </script>
 </body>
 
 </html>

@@ -9,6 +9,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .badge-open {
+            background: #FFF7ED;
+            color: #f97316;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-completed {
+            background: #ECFDF5;
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
 </head>
 
 <body class="dashboard-body">
@@ -56,9 +74,8 @@
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Topic</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Summary</th>
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Location</th>
-                            <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Time</th>
-
                             <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Assigned Engineer</th>
+                            <th style="padding: 1.25rem 1.5rem; text-align: left; font-weight: 600; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color);">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,9 +87,14 @@
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">{{ ticket.summary }}</div>
                             </td>
                             <td style="padding: 1.25rem 1.5rem; color: var(--text-muted);">{{ ticket.location }}</td>
-                            <td style="padding: 1.25rem 1.5rem;"><span style="color: #64748b; font-size: 0.9rem;">{{ ticket.time }}</span></td>
-
                             <td style="padding: 1.25rem 1.5rem; font-weight: 500; color: #0f172a;">{{ ticket.engineer }}</td>
+                            <td style="padding: 1.25rem 1.5rem;">
+                                {% if ticket.status == 'Completed' %}
+                                <span class="badge-completed">✅ Completed</span>
+                                {% else %}
+                                <span class="badge-open">🔸 Open</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

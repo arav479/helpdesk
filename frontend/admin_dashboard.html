@@ -210,6 +210,8 @@
                     <button type="submit" class="btn-primary">Search</button>
                     <a href="/dashboard" class="btn-primary"
                         style="text-decoration: none; display: flex; align-items: center;">Clear</a>
+                    <a href="/export-tickets" class="btn-primary"
+                        style="text-decoration: none; display: flex; align-items: center;">Export Excel</a>
                 </form>
                 <form action="/undo" method="POST" style="margin: 0;">
                     <button type="submit" class="btn-primary" style="background-color: #6366f1;">Undo Last
@@ -246,9 +248,9 @@
 
                         <td>
                             {% if ticket.status == 'Completed' %}
-                            <span class="badge-completed">✅ Completed</span>
+                            <span class="badge-completed">Completed</span>
                             {% else %}
-                            <span class="badge-open">🔸 Open</span>
+                            <span class="badge-open">Open</span>
                             {% endif %}
                         </td>
 

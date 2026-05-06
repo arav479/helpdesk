@@ -64,6 +64,10 @@
             </div>
         </header>
 
+        <div style="margin-bottom: 1rem;">
+            <a href="/export-tickets" class="btn-primary" style="display: inline-block; text-decoration: none;">Download Excel</a>
+        </div>
+
         <div class="tickets-container" style="margin-top: 2rem;">
             {% if tickets %}
             <div style="background: white; border-radius: 1.5rem; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -90,9 +94,9 @@
                             <td style="padding: 1.25rem 1.5rem; font-weight: 500; color: #0f172a;">{{ ticket.engineer }}</td>
                             <td style="padding: 1.25rem 1.5rem;">
                                 {% if ticket.status == 'Completed' %}
-                                <span class="badge-completed">✅ Completed</span>
+                                <span class="badge-completed">Completed</span>
                                 {% else %}
-                                <span class="badge-open">🔸 Open</span>
+                                <span class="badge-open">Open</span>
                                 {% endif %}
                             </td>
                         </tr>

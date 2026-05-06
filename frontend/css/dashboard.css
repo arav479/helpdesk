@@ -223,6 +223,17 @@ tr:hover {
 .badge-active { background: #ECFDF5; color: var(--accent); }
 .badge-pending { background: #FFF7ED; color: #f97316; }
 
+.badge-open,
+.badge-completed {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: max-content;
+    white-space: nowrap;
+    line-height: 1;
+}
+
 .topic-cell {
     font-weight: 600;
 }

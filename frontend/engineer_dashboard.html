@@ -506,6 +506,7 @@
         <div class="tickets-container">
             <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>Assigned Tickets</h2>
+                <a href="/export-tickets" class="btn-primary" style="text-decoration: none;">Export Excel</a>
             </div>
             <table>
                 <thead>
@@ -530,9 +531,9 @@
                         <td>{{ ticket.location }}</td>
                         <td>
                             {% if ticket.status == 'Completed' %}
-                            <span class="badge-completed">✅ Completed</span>
+                            <span class="badge-completed">Completed</span>
                             {% else %}
-                            <span class="badge-open">🔸 Open</span>
+                            <span class="badge-open">Open</span>
                             {% endif %}
                         </td>
                         <td>

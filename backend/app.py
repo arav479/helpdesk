@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify
+from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify, send_file
 from datetime import datetime
 import subprocess
 import os
@@ -563,6 +563,34 @@ def view_my_tickets():
         return redirect(url_for('dashboard'))
     tickets=fetch_user_tickets()
     return render_template("mytickets.html", tickets=tickets, Email=session.get('email'))
+
+@app.route('/export-tickets')
+def export_tickets():
+    role = session.get('role')
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    exe_path = os.path.join(backend_dir, "ticket_export.exe")
+    output_path = os.path.join(backend_dir, "tickets_export.csv")
+
+    if not os.path.exists(exe_path):
+        return "ticket_export.exe not found. Compile it from the backend folder using: gcc ticket_export.c -o ticket_export.exe", 500
+
+    if role == 'admin':
+        args = [exe_path, 'admin']
+        filename = 'all_tickets.csv'
+    elif role == 'user':
+        args = [exe_path, 'user', session.get('email', '')]
+        filename = 'my_tickets.csv'
+    elif role == 'engineer':
+        args = [exe_path, 'engineer', session.get('engineer_name', '')]
+        filename = 'assigned_tickets.csv'
+    else:
+        return redirect(url_for('home'))
+
+    result = subprocess.run(args, cwd=backend_dir, capture_output=True, text=True)
+    if result.returncode != 0 or not os.path.exists(output_path):
+        return "Ticket export failed.", 500
+
+    return send_file(output_path, as_attachment=True, download_name=filename, mimetype='text/csv')
 
 @app.route('/engineer_dashboard')
 def engineer_dashboard():

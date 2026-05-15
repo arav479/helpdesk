@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify, send_file
-from datetime import datetime
+from datetime import datetime, timedelta
 import subprocess
 import os
 
@@ -11,6 +11,9 @@ NOTIFICATIONS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'n
 USER_DETAILS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'userdetails.txt')
 
 VALID_ROLES = {'user', 'admin'}
+
+# How many hours before a ticket is considered "delayed"
+DELAY_THRESHOLD_HOURS = 24
 
 @app.context_processor
 def inject_theme():
@@ -677,6 +680,62 @@ def logout():
     session.pop('engineer_name', None)
     return redirect(url_for('home'))
 
+# ======== DELAYED TICKET DETECTION ========
+
+def get_delayed_tickets():
+    """Return list of open tickets that have been open longer than DELAY_THRESHOLD_HOURS.
+    Uses the new_ticket notification timestamp to determine when the ticket was created."""
+    delayed = []
+    now = datetime.now()
+
+    # Build a map: ticket_id -> earliest notification timestamp
+    ticket_created_at = {}
+    try:
+        if os.path.exists(NOTIFICATIONS_FILE):
+            with open(NOTIFICATIONS_FILE, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split('|')
+                    # Format: engineer_name|type|title|message|timestamp|read
+                    if len(parts) >= 6 and parts[1] == 'new_ticket':
+                        # Extract ticket_id from message: "Ticket XX-NNN - ..."
+                        msg = parts[3]
+                        try:
+                            tid = msg.split(' ')[1]  # e.g. "NW-134"
+                            ts_str = parts[4]  # e.g. "2026-05-02 11:49"
+                            ts = datetime.strptime(ts_str, '%Y-%m-%d %H:%M')
+                            # Keep the earliest timestamp for each ticket
+                            if tid not in ticket_created_at or ts < ticket_created_at[tid]:
+                                ticket_created_at[tid] = ts
+                        except Exception:
+                            pass
+    except Exception as e:
+        print(f"Error reading notifications for delay check: {e}")
+
+    # Check each open ticket against the threshold
+    all_tickets = fetch_tickets()
+    for ticket in all_tickets:
+        if ticket.get('status') == 'Open':
+            tid = ticket.get('id', '')
+            created_at = ticket_created_at.get(tid)
+            if created_at:
+                age_hours = (now - created_at).total_seconds() / 3600
+                if age_hours >= DELAY_THRESHOLD_HOURS:
+                    delayed.append({
+                        'id': tid,
+                        'topic': ticket.get('topic', ''),
+                        'summary': ticket.get('summary', ''),
+                        'engineer': ticket.get('engineer', 'Unassigned'),
+                        'location': ticket.get('location', ''),
+                        'open_hours': round(age_hours),
+                        'open_days': round(age_hours / 24, 1)
+                    })
+    # Sort by oldest first
+    delayed.sort(key=lambda x: x['open_hours'], reverse=True)
+    return delayed
+
 # ======== NOTIFICATION API ENDPOINTS ========
 
 @app.route('/api/notifications')
@@ -704,6 +763,14 @@ def api_clear_notifications():
     if engineer_name:
         clear_notifications(engineer_name)
     return jsonify({'status': 'ok'})
+
+@app.route('/api/admin/delayed-tickets')
+def api_delayed_tickets():
+    """API: Get delayed (long-open) tickets for admin dashboard."""
+    if session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    delayed = get_delayed_tickets()
+    return jsonify({'delayed_tickets': delayed, 'count': len(delayed)})
 
 if __name__ == "__main__":
     app.run(debug=True)
